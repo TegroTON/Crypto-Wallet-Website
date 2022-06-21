@@ -1,5 +1,5 @@
-import { Link, useLocation, useNavigate } from "react-router-dom";
-import { LocationParams, WalletInfo } from "./wallet/types";
+import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { LocationParams, WalletInfo } from './wallet/types';
 
 export function WalletHeader() {
     function refreshPage() {
@@ -11,23 +11,23 @@ export function WalletHeader() {
             <div className="container">
                 <nav className="d-flex align-items-center">
                     <a
-                        style={{ cursor: "pointer" }}
-                        className="header-logo mr-auto"
+                        style={{ cursor: 'pointer' }}
+                        className="mr-auto"
                         onClick={refreshPage}
                     >
-                        <i className="fi-icon fi-icon-lg icon-reload" />
+                        <i className="fa-regular fa-arrow-rotate-right fa-2xl" />
                     </a>
                     <a
-                        href="src/templates/headers.tsx"
+                        href="#"
                         className="header-translate font-18"
                     >
-                        <i className="fi-icon icon-translate" />
+                        <i className="fa-light fa-globe font-24" />
                     </a>
                     <Link to="/settings" className="font-18 ml-4">
-                        <i className="fi-icon icon-settings" />
+                        <i className="fa-regular fa-gear font-24" />
                     </Link>
                     <a
-                        href="src/templates/headers.tsx"
+                        href="#"
                         title="NFT Telegram"
                         className="ntf-avatar tooltip ml-4"
                     >
@@ -48,26 +48,31 @@ export function DefaultHeader() {
 
     const go_back = () => {
         if (!state?.from) navigate(-1);
-        if (state.from !== location.pathname)
-            navigate(state.from, { state: state, replace: true });
-        else navigate("/", { state: state, replace: true });
+        if (state.from !== location.pathname) navigate(state.from, { state, replace: true });
+        else navigate('/', { state, replace: true });
     };
     return (
         <header className="header pt-3 pb-0">
             <div className="container">
                 <nav className="d-flex align-items-center">
+                    {(state?.noBack || (location.pathname === '/')) ? (
+                        <a
+                            className="header-logo d-none d-md-block"
+                        />
+                    ) : (
+                        <a
+                            className="mr-auto text-dark"
+                            onClick={go_back}
+                            style={{ cursor: 'pointer' }}
+                        >
+                            <i className="fa-regular fa-angle-left fa-2xl" />
+                        </a>
+                    )}
                     <a
-                        className="header-logo mr-auto"
-                        onClick={go_back}
-                        style={{ cursor: "pointer" }}
-                    >
-                        <i className="fi-icon fi-icon-lg icon-angle-left" />
-                    </a>
-                    <a
-                        href="src/templates/headers.tsx"
+                        href="#"
                         className="header-translate font-18"
                     >
-                        <i className="fi-icon icon-translate" />
+                        <i className="fa-light fa-globe font-24" />
                     </a>
                 </nav>
             </div>
@@ -82,26 +87,25 @@ export function DefaultDarkHeader() {
 
     const go_back = () => {
         if (!state?.from) navigate(-1);
-        if (state.from !== location.pathname)
-            navigate(state.from, { state: state, replace: true });
-        else navigate("/", { state: state, replace: true });
+        if (state.from !== location.pathname) navigate(state.from, { state, replace: true });
+        else navigate('/', { state, replace: true });
     };
     return (
         <header className="header header-dark pt-3 pb-0">
             <div className="container">
                 <nav className="d-flex align-items-center">
                     <a
-                        className="header-logo mr-auto"
+                        className="mr-auto"
                         onClick={go_back}
-                        style={{ cursor: "pointer" }}
+                        style={{ cursor: 'pointer' }}
                     >
-                        <i className="fi-icon fi-icon-lg icon-angle-left" />
+                        <i className="fa-regular fa-angle-left fa-2xl" />
                     </a>
                     <a
-                        href="src/templates/headers.tsx"
-                        className="header-translate font-18"
+                        href="#"
+                        className="header-translate"
                     >
-                        <i className="fi-icon icon-translate" />
+                        <i className="fa-light fa-globe font-24" />
                     </a>
                 </nav>
             </div>
@@ -114,15 +118,17 @@ export function MainHeader() {
         <header className="header pt-3 pb-0">
             <div className="container">
                 <nav className="d-flex align-items-center">
-                    <a href="/" className="header-logo d-none d-md-block"><i className="fi-icon icon-diamond"></i></a>
+                    <Link to="/" className="header-logo d-none d-md-block">
+                        <i className="fa-light fa-gem" />
+                    </Link>
                     <ul className="m-0 p-0">
-                        <li><a href="/terms" className="px-3">Terms</a></li>
-                        <li><a href="/privacy" className="px-3">Privacy</a></li>
+                        <li><Link to="/terms" className="px-3">Terms</Link></li>
+                        <li><Link to="/privacy" className="px-3">Privacy</Link></li>
                         <li><a href="#!" className="px-3">Support</a></li>
                     </ul>
-                    <a href="#!" className="header-translate font-18"><i className="fi-icon icon-translate"></i></a>
+                    <a href="#!" className="header-translate font-18"><i className="fi-icon icon-translate" /></a>
                 </nav>
             </div>
         </header>
-    )
+    );
 }

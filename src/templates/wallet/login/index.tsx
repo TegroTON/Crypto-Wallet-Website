@@ -1,15 +1,15 @@
-import {Link} from "react-router-dom";
-import {clearStorage} from "../../../ton/utils";
+import { Link } from 'react-router-dom';
+import { clearStorage } from '../../../ton/utils';
 
 export function LoginPage() {
-    clearStorage()
+    clearStorage();
 
     return (
         <main className="page-main">
             <div className="container">
                 <div className="row">
                     <div className="col-md-8 col-lg-4 mx-auto text-center">
-                        <div className="main-icon"><i className="fi-icon icon-diamond"/></div>
+                        <div className="main-icon"><i className="fa-duotone fa-gem" /></div>
                         <h2 className="main-title main-title__bold">TON Wallet</h2>
                         <p className="main-desc">
                             TON wallet allows you to make fast and secure blockchain-based payments without
@@ -23,5 +23,5 @@ export function LoginPage() {
                 </div>
             </div>
         </main>
-    )
+    );
 }
