@@ -22,7 +22,7 @@ export function SendPage() {
         formState: { errors },
         handleSubmit,
         watch,
-    } = useForm({ mode: 'onBlur' });
+    } = useForm({ mode: 'onChange' });
 
     const amount = useRef({});
     amount.current = watch('amount', 0);

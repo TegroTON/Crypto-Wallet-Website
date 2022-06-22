@@ -1,4 +1,3 @@
-import { Navigate } from 'react-router-dom';
 import {
     Address,
     Cell,
@@ -16,7 +15,6 @@ import {
 import { mnemonicNew, mnemonicToWalletKey } from 'ton-crypto';
 import BN from 'bn.js';
 import { Buffer } from 'buffer';
-
 import { decrypt, encrypt } from './crypto';
 import {
     JettonsData, Send, Transaction, Jetton, JettonMeta,
@@ -66,21 +64,6 @@ export function walletTypeNorm(walletType: string) {
     if (walletType === 'v3') return 'org.ton.wallets.v3';
     if (walletType === 'v3r2') return 'org.ton.wallets.v3.r2';
     throw Error(`Unknown wallet type: ${walletType}`);
-}
-
-export function UnloginOnly({ children }: any) {
-    const auth = localStorage.getItem('public_key') != null;
-    if (auth) return <Navigate to="/wallet" />;
-    return children;
-}
-
-export function LoginOnly({ children }: any) {
-    const auth = localStorage.getItem('public_key') != null;
-
-    if (!auth) {
-        return <Navigate to="/wallet" />;
-    }
-    return children;
 }
 
 export async function getMnemonic(
@@ -354,6 +337,20 @@ function setJettonsData(jettonsData: JettonsData) {
     localStorage.setItem('jettons', JSON.stringify(jettonsData));
 }
 
+const normalizeIMG = (img: string | undefined) => {
+    if (!img) return '';
+    if (img.slice(0, 4) === 'data') return img;
+    const n_img = img.replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX);
+    if (n_img.slice(0, 4) === 'http') return n_img;
+    try {
+        const mb_svg = Buffer.from(img, 'base64').toString();
+        if (mb_svg.includes('svg')) return `data:image/svg+xml;base64,${n_img}`;
+        return '';
+    } catch {
+        return '';
+    }
+};
+
 export async function addJetton(jettonAddress: string) {
     const jettonsData = getJettonsData();
     const jettonData = await getJettonData(jettonAddress);
@@ -363,7 +360,7 @@ export async function addJetton(jettonAddress: string) {
             name: jettonData.name || '',
             symbol: jettonData.symbol,
             description: jettonData.description || '',
-            image: jettonData.image || '',
+            image: normalizeIMG(jettonData.image || jettonData.image_data || ''),
             decimal: jettonData.decimal || 9,
         };
         setJettonsData(jettonsData);
@@ -379,7 +376,7 @@ export function removeJetton(jettonAddress: string) {
 }
 
 export async function loadJettons(address: string) {
-    await addJetton('EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y');
+    await addJetton('EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y'); // hardcode TGR
     const jettons = [];
     const jettonsData = getJettonsData();
 

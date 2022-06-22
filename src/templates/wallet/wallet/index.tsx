@@ -40,12 +40,12 @@ export function WalletPage() {
         if (walletInfo.wallet.address) setTONPrice(await getTONPrice());
         const walletType = getWalletType();
         const address = getAddress(walletType);
-        const balance = parseFloat(fromNano(await getBalance(address)));
-        const seqno = await getSeqno(address);
+        const balance = getBalance(address);
+        const seqno = getSeqno(address);
         const [mnemonic, encrypted] = await getMnemonic();
         const pub_key = getPubKey();
-        const jettons = await loadJettons(address);
-        const transactions = await getTransactions(address);
+        const jettons = loadJettons(address);
+        const transactions = getTransactions(address);
         setWalletInfo({
             ...walletInfo,
             mnemonic,
@@ -54,10 +54,10 @@ export function WalletPage() {
             walletType,
             wallet: {
                 address,
-                balance,
-                seqno,
-                transactions,
-                jettons,
+                balance: parseFloat(fromNano(await balance)),
+                seqno: await seqno,
+                transactions: await transactions,
+                jettons: await jettons,
             },
         });
         setTONPrice(await getTONPrice());

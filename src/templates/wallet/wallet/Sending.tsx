@@ -13,7 +13,7 @@ export function SendingPage() {
     useEffect(() => {
         sendTransaction(send as Send, state.data.pass || '').then();
         const interval = setInterval(async () => {
-            if (await checkSeqnoUpdate(walletInfo.wallet.seqno || 0)) {
+            if (await checkSeqnoUpdate(walletInfo.wallet.seqno || 0, walletInfo.walletType)) {
                 clearInterval(interval);
                 navigate('/successful', {
                     state: { noBack: true, data: { walletInfo } },

@@ -7,7 +7,7 @@ import {
 } from './layouts';
 import { LoginPage } from './templates/wallet/login';
 import { WalletPage } from './templates/wallet/wallet';
-import { LoginOnly, UnloginOnly } from './ton/utils';
+import { LoginOnly, UnloginOnly } from './ton/checkLogin';
 import { ReadyPage } from './templates/wallet/create/Ready';
 import { SecretPage } from './templates/wallet/create/Secret';
 import { SecretCheckPage } from './templates/wallet/create/SecretCheck';
