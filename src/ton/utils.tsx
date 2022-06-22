@@ -16,6 +16,7 @@ import {
 import { mnemonicNew, mnemonicToWalletKey } from 'ton-crypto';
 import BN from 'bn.js';
 import { Buffer } from 'buffer';
+
 import { decrypt, encrypt } from './crypto';
 import {
     JettonsData, Send, Transaction, Jetton, JettonMeta,
@@ -141,7 +142,6 @@ export async function getWallet(password: string): Promise<Wallet> {
 export async function getBalance(address: string): Promise<BN> {
     if (!address) return new BN(0);
     const balance = await client.getBalance(Address.parse(address));
-    console.log(address, balance);
     return balance || new BN(0);
 }
 
@@ -279,9 +279,10 @@ export async function sendTransaction(tr_info: Send, password: string) {
             });
             await wallet.transfer({
                 seqno: seqNo,
+                sendMode: 2,
                 to,
                 secretKey,
-                value: new BN(35000000, 10),
+                value: new BN(50000000, 10),
                 bounce,
                 payload,
             });
@@ -341,10 +342,7 @@ export async function getJettonData(jettonAddress: string): Promise<JettonMeta> 
     const { content } = await contract.getJettonData();
     return fetch(content.toString().replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX))
         .then((response) => response.json())
-        .then((data) => {
-            console.log(data);
-            return data as JettonMeta;
-        });
+        .then((data) => data as JettonMeta);
 }
 
 function getJettonsData(): JettonsData {

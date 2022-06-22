@@ -15,10 +15,13 @@ import {
 } from '../../../ton/utils';
 import { ReceivedTransaction, SentTransaction } from './Transaction';
 import { LocationParams, WalletInfo } from '../types';
+import { getTONPrice, PriceInfo } from '../../../ton/coingecko';
+import { round } from '../../utils';
 
 export function WalletPage() {
     const location = useLocation();
     const state = location.state as LocationParams;
+    const [TONPrice, setTONPrice] = useState<PriceInfo>({ price: 0, priceChange: 0 });
     const [walletInfo, setWalletInfo] = useState<WalletInfo>(
         state?.data.walletInfo || ({
             mnemonic: '',
@@ -34,6 +37,7 @@ export function WalletPage() {
     );
 
     const updateWalletInfo = async () => {
+        if (walletInfo.wallet.address) setTONPrice(await getTONPrice());
         const walletType = getWalletType();
         const address = getAddress(walletType);
         const balance = parseFloat(fromNano(await getBalance(address)));
@@ -56,6 +60,7 @@ export function WalletPage() {
                 jettons,
             },
         });
+        setTONPrice(await getTONPrice());
     };
 
     const updateJettons = async () => {
@@ -80,6 +85,10 @@ export function WalletPage() {
 
     useEffect(() => {
         updateWalletInfo().then();
+        const timer = setInterval(updateWalletInfo, 30 * 1000);
+        return () => {
+            clearInterval(timer);
+        };
     }, []);
 
     return (
@@ -107,14 +116,28 @@ export function WalletPage() {
                                 className="wallet-balance mx-auto d-flex justify-content-between"
                                 style={{ maxWidth: '286px' }}
                             >
-                                <div>
-                                    Your balance:
-                                    <span className="ml-2">$5.11</span>
-                                </div>
-                                <div className="color-green">
-                                    <i className="fa-duotone fa-chart-line-up mr-2" />
-                                    4.1%
-                                </div>
+                                {TONPrice.price > 0 ? (
+                                    <>
+                                        <div>
+                                            Your balance:
+                                            <span className="ml-2">
+                                                {`$${round(TONPrice.price * walletInfo.wallet.balance, 2)}`}
+                                            </span>
+                                        </div>
+                                        {TONPrice.priceChange < 0 ? (
+                                            <div className="color-red">
+                                                <i className="fa-duotone fa-chart-line-down mr-2" />
+                                                {`${round(TONPrice.priceChange * 100, 1)}%`}
+                                            </div>
+                                        ) : (
+                                            <div className="color-green">
+                                                <i className="fa-duotone fa-chart-line-up mr-2" />
+                                                {`${round(TONPrice.priceChange * 100, 1)}%`}
+                                            </div>
+                                        )}
+                                    </>
+                                ) : (<>&nbsp;</>)}
+
                             </div>
                             <div
                                 className="btn-group d-flex flex-fill mx-auto mt-5"

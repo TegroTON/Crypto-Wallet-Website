@@ -19,6 +19,7 @@ export function PaymentProtectionPage() {
     const onSubmit = async (data: any) => {
         navigator('/sending', {
             state: {
+                noBack: true,
                 data: {
                     walletInfo,
                     send,
@@ -60,9 +61,7 @@ export function PaymentProtectionPage() {
                                     type="submit"
                                     disabled={!isValid}
                                 >
-                                    Send
-                                    {' '}
-                                    {send?.jetton ? send.jetton.jetton.meta.symbol : 'TON'}
+                                    {`Send ${send?.jetton ? send.jetton.jetton.meta.symbol : 'TON'}`}
                                 </button>
                             </div>
                         </form>

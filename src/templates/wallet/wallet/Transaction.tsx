@@ -1,6 +1,6 @@
 import { fromNano } from 'ton';
 import BN from 'bn.js';
-import { Link, useLocation, useNavigate } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { LocationParams } from '../types';
 
 export function ReceivedTransaction({
@@ -32,8 +32,7 @@ export function ReceivedTransaction({
                     <p className="wh-item__number">{`${address?.slice(0, 6)} . . . ${address?.slice(-6)}`}</p>
                 </div>
                 <div className="wh-item__ton color-green ml-auto">
-                    +
-                    {fromNano(amount)}
+                    {`+${fromNano(amount)}`}
                 </div>
             </div>
 
@@ -59,9 +58,7 @@ export function ReceivedTransaction({
                             <h4 className="small mb-0">Message</h4>
                             <span className="small color-grey">{message}</span>
                         </li>
-                    ) : (
-                        ''
-                    )}
+                    ) : ('')}
                     <li className="d-flex align-items-center justify-content-between mt-3">
                         <a
                             style={{ cursor: 'pointer' }}
@@ -111,8 +108,7 @@ export function SentTransaction({
                     <p className="wh-item__number">{`${address?.slice(0, 6)} . . . ${address?.slice(-6)}`}</p>
                 </div>
                 <div className="wh-item__ton color-red ml-auto">
-                    -
-                    {fromNano(amount)}
+                    {`-${fromNano(amount)}`}
                 </div>
             </div>
 
@@ -138,9 +134,7 @@ export function SentTransaction({
                             <h4 className="small mb-0">Message</h4>
                             <span className="small color-grey">{message}</span>
                         </li>
-                    ) : (
-                        ''
-                    )}
+                    ) : ('')}
                     <li className="d-flex align-items-center justify-content-between mt-3">
                         <a
                             style={{ cursor: 'pointer' }}

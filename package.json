@@ -16,6 +16,7 @@
     "@types/react-transition-group": "^4.4.4",
     "bootstrap": "^5.1.3",
     "buffer": "^6.0.3",
+    "coingecko-api-v3": "^0.0.13",
     "cors": "^2.8.5",
     "easyqrcodejs": "^4.4.12",
     "process": "^0.11.10",

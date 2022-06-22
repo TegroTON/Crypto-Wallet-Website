@@ -1,8 +1,9 @@
 import { useEffect, useState } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 import { getMnemonic } from '../../../ton/utils';
 
 export function SecretPage() {
+    const location = useLocation();
     const [wordList, setWordList] = useState([] as string[]);
 
     const getWordList = async () => {
@@ -32,8 +33,7 @@ export function SecretPage() {
                                     {wordList.slice(0, 12).map((item, i) => (
                                         <li className="py-2">
                                             <span className="mr-2 color-grey">
-                                                {i + 1}
-                                                .
+                                                {`${i + 1}.`}
                                             </span>
                                             {item}
                                         </li>
@@ -43,8 +43,7 @@ export function SecretPage() {
                                     {wordList.slice(12, 24).map((item, i) => (
                                         <li className="py-2">
                                             <span className="mr-2 color-grey">
-                                                {i + 1 + 12}
-                                                .
+                                                {`${i + 1 + 12}.`}
                                             </span>
                                             {item}
                                         </li>

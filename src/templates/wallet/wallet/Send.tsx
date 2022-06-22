@@ -4,7 +4,7 @@ import { Dropdown } from 'react-bootstrap';
 import DropdownToggle from 'react-bootstrap/DropdownToggle';
 import DropdownMenu from 'react-bootstrap/DropdownMenu';
 import DropdownItem from 'react-bootstrap/DropdownItem';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { LocationParams, JettonInfo } from '../types';
 import { checkAddrValid } from '../../../ton/utils';
 
@@ -19,13 +19,20 @@ export function SendPage() {
 
     const {
         register,
-        formState: { isValid },
+        formState: { errors },
         handleSubmit,
-    } = useForm({ mode: 'onChange' });
+        watch,
+    } = useForm({ mode: 'onBlur' });
+
+    const amount = useRef({});
+    amount.current = watch('amount', 0);
 
     const [jetton, setJetton] = useState<JettonInfo | undefined>(
         send?.jetton || jettonInfo,
     );
+
+    const symbol = jetton ? jetton.jetton.meta.symbol : 'TON';
+    const fee = jetton ? 0.05 : 0.0055; // TODO calculate fee (client.estimateExternalMessageFee)
 
     const onSubmit = (data: any) => {
         navigator('/payment-protect', {
@@ -46,11 +53,16 @@ export function SendPage() {
 
     const installJetton = (address: string) => {
         if (!address) setJetton(undefined);
-        for (const jettonInfo of walletInfo.wallet.jettons as JettonInfo[]) {
-            if (jettonInfo.jetton.address === address) {
-                setJetton(jettonInfo);
+        for (const jI of walletInfo.wallet.jettons as JettonInfo[]) {
+            if (jI.jetton.address === address) {
+                setJetton(jI);
             }
         }
+    };
+
+    const validateAmount = (value: number) => {
+        if (jetton) return (value <= jetton.balance) && (walletInfo.wallet.balance >= fee);
+        return value < (walletInfo.wallet.balance - fee);
     };
 
     return (
@@ -62,7 +74,7 @@ export function SendPage() {
                             <i className="fa-duotone fa-paper-plane-top fa-rotate-270" />
                         </div>
                         <h1 className="main-title text-center">
-                            {`Send ${!jetton ? 'TON' : jetton.jetton.meta.symbol}`}
+                            {`Send ${symbol}`}
                         </h1>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
@@ -81,6 +93,7 @@ export function SendPage() {
                                         type="text"
                                         placeholder="Enter wallet address"
                                         className="form-control"
+                                        style={errors.recipient_address ? { boxShadow: '0 0 0 .2rem rgba(255,0,0,0.25)' } : {}}
                                         {...register('recipient_address', {
                                             required: true,
                                             validate: (value) => checkAddrValid(value),
@@ -177,6 +190,7 @@ export function SendPage() {
                                                 fontSize: '18px',
                                                 borderTopLeftRadius: '0',
                                                 borderBottomLeftRadius: '0',
+                                                boxShadow: errors.amount ? '0 0 0 .2rem rgba(255,0,0,0.25)' : '',
                                             }}
                                             min={0}
                                             step="any"
@@ -185,6 +199,7 @@ export function SendPage() {
                                                 max: !jetton
                                                     ? walletInfo.wallet.balance
                                                     : jetton.balance,
+                                                validate: (value) => validateAmount(value),
                                             })}
                                         />
                                     </div>
@@ -192,12 +207,20 @@ export function SendPage() {
                                 <div className="d-flex align-items-center font-14 m-2">
                                     <span className="color-grey">Your Balance</span>
                                     <span className="ml-auto color-blue">
-                                        {jetton
-                                            ? `${jetton.balance.toString()} ${
-                                                jetton.jetton.meta.symbol
-                                            }`
-                                            : `${walletInfo.wallet.balance} TON`}
+                                        {`${jetton ? jetton.balance : walletInfo.wallet.balance} ${symbol}`}
                                     </span>
+                                </div>
+                                <div className="alert border my-4 p-3" role="alert">
+                                    <div className="d-flex align-items-center small mb-3">
+                                        <span className="color-dark font-weight-medium">Do you send :</span>
+                                        <span className="ml-auto color-grey">
+                                            {`${parseFloat(amount.current as string) || 0} ${symbol}`}
+                                        </span>
+                                    </div>
+                                    <div className="d-flex align-items-center small">
+                                        <span className="color-dark font-weight-medium">Fee:</span>
+                                        <span className="ml-auto color-grey">{`~ ${fee} TON`}</span>
+                                    </div>
                                 </div>
                             </div>
 
@@ -219,7 +242,6 @@ export function SendPage() {
                                 <button
                                     className="btn btn-primary"
                                     type="submit"
-                                    disabled={!isValid}
                                 >
                                     Continue
                                 </button>

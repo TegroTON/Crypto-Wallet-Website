@@ -16,7 +16,7 @@ export function SendingPage() {
             if (await checkSeqnoUpdate(walletInfo.wallet.seqno || 0)) {
                 clearInterval(interval);
                 navigate('/successful', {
-                    state: { data: { walletInfo } },
+                    state: { noBack: true, data: { walletInfo } },
                 });
             }
         }, 1000);
@@ -27,7 +27,7 @@ export function SendingPage() {
         <main className="page-main">
             <div className="container">
                 <div className="row">
-                    <div className="col-md-8 col-lg-4 mx-auto text-center">
+                    <div className="col-md-8 col-lg-5 mx-auto text-center">
                         <div className="main-icon fi-spin"><i className="fa-regular fa-gear" /></div>
                         <h2 className="main-title">
                             Transaction processing

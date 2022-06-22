@@ -35,17 +35,13 @@ export function SecretCheckPage() {
                         <div className="main-icon"><i className="fa-duotone fa-microchip" /></div>
                         <h2 className="main-title">Let&apos;s check</h2>
                         <p className="main-desc mb-4">
-                            To make sure you spelled the words correctly, enter words
-                            {' '}
-                            {`${rNumbers[0]}, ${rNumbers[1]} and ${rNumbers[2]}`}
-                            .
+                            {`To make sure you spelled the words correctly, enter words ${rNumbers[0]}, ${rNumbers[1]} and ${rNumbers[2]}.`}
                         </p>
                         <form onSubmit={handleSubmit(onSubmit)} className="mx-auto" style={{ maxWidth: '378px' }}>
                             {rNumbers.map((i) => (
                                 <div className="input-group mb-3">
                                     <div className="input-group-text">
-                                        {i}
-                                        .
+                                        {`${i}.`}
                                     </div>
                                     <input
                                         type="text"

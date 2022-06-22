@@ -33,14 +33,15 @@ export function JettonPage() {
                                 className="wallet-balance mx-auto d-flex justify-content-between"
                                 style={{ maxWidth: '286px' }}
                             >
-                                <div>
-                                    Your balance:
-                                    <span className="ml-2">$5.11</span>
-                                </div>
-                                <div className="color-green">
-                                    <i className="fa-duotone fa-chart-line-up mr-2" />
-                                    4.1%
-                                </div>
+                                &nbsp;
+                                {/* <div> */}
+                                {/*    Your balance: */}
+                                {/*    <span className="ml-2">$5.11</span> */}
+                                {/* </div> */}
+                                {/* <div className="color-green"> */}
+                                {/*    <i className="fa-duotone fa-chart-line-up mr-2" /> */}
+                                {/*    4.1% */}
+                                {/* </div> */}
                             </div>
                             <div
                                 className="btn-group d-flex flex-fill mx-auto mt-5"

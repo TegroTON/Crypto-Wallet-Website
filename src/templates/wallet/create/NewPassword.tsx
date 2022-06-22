@@ -1,8 +1,9 @@
 import { useForm } from 'react-hook-form';
 import { useRef } from 'react';
-import { Link } from 'react-router-dom';
+import { Link, useLocation } from 'react-router-dom';
 
 export function NewPasswordPage() {
+    const location = useLocation();
     const { register, formState: { isValid }, watch } = useForm({ mode: 'onChange' });
     const password = useRef({});
     password.current = watch('password', 'value');

@@ -47,9 +47,11 @@ export function DefaultHeader() {
     const state = location.state as LocationParams;
 
     const go_back = () => {
-        if (!state?.from) navigate(-1);
-        if (state.from !== location.pathname) navigate(state.from, { state, replace: true });
-        else navigate('/', { state, replace: true });
+        if (!state?.from) {
+            navigate(-2);
+        } else if (state.from !== location.pathname) {
+            navigate(state.from, { state: { ...state, from: false }, replace: true });
+        } else navigate('/', { state: { ...state, from: false }, replace: true });
     };
     return (
         <header className="header pt-3 pb-0">
@@ -86,9 +88,11 @@ export function DefaultDarkHeader() {
     const state = location.state as LocationParams;
 
     const go_back = () => {
-        if (!state?.from) navigate(-1);
-        if (state.from !== location.pathname) navigate(state.from, { state, replace: true });
-        else navigate('/', { state, replace: true });
+        if (!state?.from) {
+            navigate(-2);
+        } else if (state.from !== location.pathname) {
+            navigate(state.from, { state: { ...state, from: false }, replace: true });
+        } else navigate('/', { state: { ...state, from: false }, replace: true });
     };
     return (
         <header className="header header-dark pt-3 pb-0">
