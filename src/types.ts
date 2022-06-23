@@ -1,11 +1,12 @@
 import BN from 'bn.js';
 import { Buffer } from 'buffer';
-import { JettonWalletContract } from '../../ton/jettons/contracts/JettonWalletContract';
-import { JettonTransaction } from '../../ton/jettons/types/JettonTransaction';
+import { JettonWalletContract } from './ton/jettons/contracts/JettonWalletContract';
+import { JettonTransaction } from './ton/jettons/types/JettonTransaction';
 
 export interface LocationParams {
     from: string;
     noBack?: boolean;
+    noLang?: boolean;
     data: {
         walletInfo: WalletInfo;
         send?: Send;
@@ -16,11 +17,15 @@ export interface LocationParams {
     };
 }
 
+export const walletTypes = ['v3r2', 'v4r2'];
+
+export type WalletType = typeof walletTypes[number];
+
 export interface WalletInfo {
     mnemonic: string;
     encrypted: string;
     public_key: Buffer;
-    walletType: string;
+    walletType: WalletType;
     wallet: Wallet;
 }
 
@@ -73,3 +78,15 @@ export interface Transaction {
     msg: string;
     timestamp: number;
 }
+
+export const currencies = {
+    usd: '$', rub: '₽', uah: '₴', eur: '€',
+};
+
+export type Currency = keyof typeof currencies;
+
+export const languages = {
+    en: 'English', ru: 'Русский',
+};
+
+export type Language = keyof typeof languages;

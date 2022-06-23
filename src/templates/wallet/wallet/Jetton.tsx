@@ -1,6 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
-import { JettonInfo, LocationParams } from '../types';
+import { useTranslation } from 'react-i18next';
+import { JettonInfo, LocationParams } from '../../../types';
 import { ReceivedTransaction, SentTransaction } from './Transaction';
 import { JettonOperation } from '../../../ton/jettons/enums/JettonOperation';
 
@@ -18,6 +19,8 @@ export function JettonPage() {
         const transactions = await jettonInfo.wallet.getTransactions(limit);
         setJettonInfo({ ...jettonInfo, transactions });
     };
+
+    const { t } = useTranslation();
 
     return (
         <main className="page-main d-block pt-0">
@@ -55,7 +58,7 @@ export function JettonPage() {
                                         data: { walletInfo, jettonInfo },
                                     }}
                                 >
-                                    Send
+                                    {t`wallet.send`}
                                     <i className="fa-regular fa-arrow-up-right font-18 ml-3" />
                                 </Link>
                             </div>
@@ -69,7 +72,7 @@ export function JettonPage() {
                     <div className="col-md-8 col-lg-5 mx-auto">
                         <div className="wallet-history wh accordion" id="accordionTon">
                             <div className="wallet-head d-flex align-iteml-center justify-content-between">
-                                <h2 className="wallet-head__title">All Transactions</h2>
+                                <h2 className="wallet-head__title">{t`wallet.all_transactions`}</h2>
                             </div>
 
                             {jettonInfo?.transactions?.map((tr, i) => {
@@ -111,7 +114,7 @@ export function JettonPage() {
                                     style={{ cursor: 'pointer' }}
                                     className="btn btn-secondary"
                                 >
-                                    Load more
+                                    {t`wallet.load_more`}
                                 </a>
                             </div>
                         </div>

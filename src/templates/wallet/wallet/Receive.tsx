@@ -1,7 +1,8 @@
 import React, { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import QRCode from 'qrcode-svg';
-import { LocationParams, WalletInfo } from '../types';
+import { useTranslation } from 'react-i18next';
+import { LocationParams, WalletInfo } from '../../../types';
 
 export function ReceivePage() {
     const location = useLocation();
@@ -15,6 +16,8 @@ export function ReceivePage() {
         ecl: 'H',
     }).svg();
 
+    const { t } = useTranslation();
+
     return (
         <main className="page-main">
             <div className="container">
@@ -23,7 +26,7 @@ export function ReceivePage() {
                         <div className="main-icon text-center">
                             <i className="fa-duotone fa-paper-plane-top fa-rotate-90" />
                         </div>
-                        <h3 className="main-title text-center">Receive ton coins</h3>
+                        <h3 className="main-title text-center">{t`wallet.receive`}</h3>
                         <form
                             action=""
                             className="mx-auto mt-5"
@@ -37,7 +40,7 @@ export function ReceivePage() {
                                 />
                             </div>
                             <div className="mb-5">
-                                <label>Wallet address</label>
+                                <label>{t`receive.wallet_address`}</label>
                                 <input
                                     disabled
                                     type="text"
@@ -55,10 +58,10 @@ export function ReceivePage() {
                                     }}
                                 >
                                     <i className="fa-regular fa-copy mr-3" />
-                                    Copy
+                                    {t`button.copy`}
                                 </a>
                                 <a href="#" className="btn btn-secondary btn-secondary-700">
-                                    Share
+                                    {t`button.share`}
                                     <i className="fa-regular fa-share ml-3" />
                                 </a>
                             </div>

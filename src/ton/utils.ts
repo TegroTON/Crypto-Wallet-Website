@@ -10,60 +10,103 @@ import {
     WalletV2R2Source,
     WalletV3R1Source,
     WalletV3R2Source,
+    WalletV4R2Source,
     TonTransaction,
+    WalletContractType,
 } from 'ton';
 import { mnemonicNew, mnemonicToWalletKey } from 'ton-crypto';
 import BN from 'bn.js';
 import { Buffer } from 'buffer';
 import { decrypt, encrypt } from './crypto';
 import {
-    JettonsData, Send, Transaction, Jetton, JettonMeta,
-} from '../templates/wallet/types';
+    JettonsData, Send, Transaction, Jetton, JettonMeta, WalletType, walletTypes,
+} from '../types';
 import { client } from './index';
 import { JettonMasterContract } from './jettons/contracts/JettonMasterContract';
 import { IPFS_GATEWAY_PREFIX } from './jettons/utils/ipfs';
 import { JettonOperation } from './jettons/enums/JettonOperation';
+import { getLanguage, setLanguage } from '../templates/utils';
 
-export function openWalletByPublicKey(publicKey: Buffer, type: string) {
+export function openWalletByPublicKey(publicKey: Buffer, type: WalletContractType) {
     if (type === 'org.ton.wallets.simple') {
         throw Error('Unsupported wallet');
     } else if (type === 'org.ton.wallets.simple.r2') {
         return client.openWalletFromCustomContract(
-            WalletV1R2Source.create({ publicKey, workchain: 0 }),
+            WalletV1R2Source.create({
+                publicKey,
+                workchain: 0,
+            }),
         );
     } else if (type === 'org.ton.wallets.simple.r3') {
         return client.openWalletFromCustomContract(
-            WalletV1R3Source.create({ publicKey, workchain: 0 }),
+            WalletV1R3Source.create({
+                publicKey,
+                workchain: 0,
+            }),
         );
     } else if (type === 'org.ton.wallets.v2') {
         return client.openWalletFromCustomContract(
-            WalletV2R1Source.create({ publicKey, workchain: 0 }),
+            WalletV2R1Source.create({
+                publicKey,
+                workchain: 0,
+            }),
         );
     } else if (type === 'org.ton.wallets.v2.r2') {
         return client.openWalletFromCustomContract(
-            WalletV2R2Source.create({ publicKey, workchain: 0 }),
+            WalletV2R2Source.create({
+                publicKey,
+                workchain: 0,
+            }),
         );
     } else if (type === 'org.ton.wallets.v3') {
         return client.openWalletFromCustomContract(
-            WalletV3R1Source.create({ publicKey, workchain: 0 }),
+            WalletV3R1Source.create({
+                publicKey,
+                workchain: 0,
+            }),
         );
     } else if (type === 'org.ton.wallets.v3.r2') {
         return client.openWalletFromCustomContract(
-            WalletV3R2Source.create({ publicKey, workchain: 0 }),
+            WalletV3R2Source.create({
+                publicKey,
+                workchain: 0,
+            }),
+        );
+    } else if (type === 'org.ton.wallets.v4.r2') {
+        return client.openWalletFromCustomContract(
+            WalletV4R2Source.create({
+                publicKey,
+                workchain: 0,
+            }),
         );
     } else {
         throw Error(`Unknown wallet type: ${type}`);
     }
 }
 
-export function walletTypeNorm(walletType: string) {
-    if (walletType === 'v1r2') return 'org.ton.wallets.simple.r2';
-    if (walletType === 'v1r3') return 'org.ton.wallets.simple.r3';
-    if (walletType === 'v2') return 'org.ton.wallets.v2';
-    if (walletType === 'v2r2') return 'org.ton.wallets.v2.r2';
-    if (walletType === 'v3') return 'org.ton.wallets.v3';
-    if (walletType === 'v3r2') return 'org.ton.wallets.v3.r2';
-    throw Error(`Unknown wallet type: ${walletType}`);
+export function walletTypeNorm(walletType: WalletType): WalletContractType {
+    switch (walletType) {
+    case 'v3r2':
+        return 'org.ton.wallets.v3.r2';
+    case 'v4r2':
+        return 'org.ton.wallets.v4.r2';
+    default:
+        throw Error(`Unknown wallet type: ${walletType}`);
+    }
+}
+
+async function getBestWalletTypeByPublicKey(publicKey: Buffer): Promise<WalletType> {
+    let maxBalance = new BN(0);
+    let bestContract = walletTypes[0];
+    for (const walletType of walletTypes) {
+        const wallet = openWalletByPublicKey(publicKey, walletTypeNorm(walletType));
+        const balance = await client.getBalance(wallet.address);
+        if (balance.gt(maxBalance)) {
+            maxBalance = balance;
+            bestContract = walletType;
+        }
+    }
+    return bestContract;
 }
 
 export async function getMnemonic(
@@ -92,21 +135,28 @@ export function setMnemonic(words: string[]) {
     localStorage.setItem('encrypted', 'false');
 }
 
+export function setWalletType(walletType = 'v3r2'): WalletType {
+    localStorage.setItem('wallet_type', walletType);
+    return walletType;
+}
+
+export function getWalletType(): WalletType {
+    const walletType = localStorage.getItem('wallet_type');
+    if (walletType) return walletType;
+    return setWalletType();
+}
+
 export async function createWallet(password: string): Promise<boolean> {
     const [mnemonic] = await getMnemonic();
     const words = mnemonic.split(' ');
     const key = await mnemonicToWalletKey(words);
     // const wallet = await client.findWalletFromSecretKey({
     // workchain: 0, secretKey: key.secretKey })
-    const wallet = client.openWalletFromSecretKey({
-        workchain: 0,
-        secretKey: key.secretKey,
-        type: 'org.ton.wallets.v3.r2',
-    });
+    const walletType = await getBestWalletTypeByPublicKey(key.publicKey);
+    setWalletType(walletType);
     localStorage.setItem('public_key', key.publicKey.toString('hex'));
     localStorage.setItem('mnemonic', await encrypt(words.join(' '), password));
     localStorage.setItem('encrypted', 'true');
-    localStorage.setItem('address', wallet.address.toFriendly());
     return true;
 }
 
@@ -114,11 +164,11 @@ export async function getWallet(password: string): Promise<Wallet> {
     const [mnemonic] = await getMnemonic(password);
     const words = mnemonic.split(' ');
     const key = await mnemonicToWalletKey(words);
-    // TODO сделать выбор версии контракта
+    const type = getWalletType();
     return client.openWalletFromSecretKey({
         workchain: 0,
         secretKey: key.secretKey,
-        type: 'org.ton.wallets.v3.r2',
+        type: walletTypeNorm(type),
     });
 }
 
@@ -133,7 +183,8 @@ function isJettonTransfer(tr: TonTransaction): boolean {
     if (body?.type !== 'data') return false;
     const bodySlice = Cell.fromBoc(body.data)[0].beginParse();
     if (bodySlice.remaining < 32) return false;
-    const operation = bodySlice.readUint(32).toNumber();
+    const operation = bodySlice.readUint(32)
+        .toNumber();
     return (operation === JettonOperation.TRANSFER) || (operation === JettonOperation.EXCESSES);
 }
 
@@ -180,7 +231,8 @@ export async function getTransactions(
             msg,
             timestamp,
         } as Transaction;
-    }).slice(0, limit);
+    })
+        .slice(0, limit);
 }
 
 export function checkAddrValid(address: string) {
@@ -205,17 +257,6 @@ export function getAddress(walletType = 'v3r2') {
         walletTypeNorm(walletType),
     );
     return wallet.address.toFriendly();
-}
-
-export function setWalletType(walletType = 'v3r2') {
-    localStorage.setItem('wallet_type', walletType);
-    return walletType;
-}
-
-export function getWalletType() {
-    const walletType = localStorage.getItem('wallet_type');
-    if (walletType) return walletType;
-    return setWalletType();
 }
 
 export async function checkPassValid(password: string) {
@@ -283,7 +324,9 @@ export async function sendTransaction(tr_info: Send, password: string) {
 }
 
 export function clearStorage() {
+    const lang = getLanguage();
     localStorage.clear();
+    setLanguage(lang);
 }
 
 export async function getSeqno(address: string): Promise<number> {
@@ -323,7 +366,8 @@ export async function getJettonData(jettonAddress: string): Promise<JettonMeta> 
         Address.parse(jettonAddress),
     );
     const { content } = await contract.getJettonData();
-    return fetch(content.toString().replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX))
+    return fetch(content.toString()
+        .replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX))
         .then((response) => response.json())
         .then((data) => data as JettonMeta);
 }
@@ -343,7 +387,8 @@ const normalizeIMG = (img: string | undefined) => {
     const n_img = img.replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX);
     if (n_img.slice(0, 4) === 'http') return n_img;
     try {
-        const mb_svg = Buffer.from(img, 'base64').toString();
+        const mb_svg = Buffer.from(img, 'base64')
+            .toString();
         if (mb_svg.includes('svg')) return `data:image/svg+xml;base64,${n_img}`;
         return '';
     } catch {

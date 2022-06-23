@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { getMnemonic } from '../../../ton/utils';
 
 export function SecretPage() {
@@ -16,16 +17,17 @@ export function SecretPage() {
         getWordList().then();
     }, []);
 
+    const { t } = useTranslation();
+
     return (
         <main className="page-main">
             <div className="container">
                 <div className="row">
                     <div className="col-md-8 col-lg-4 mx-auto text-center">
                         <div className="main-icon"><i className="fa-duotone fa-microchip" /></div>
-                        <h2 className="main-title">Your private key</h2>
+                        <h2 className="main-title">{t`secret.title`}</h2>
                         <p className="main-desc mb-4">
-                            Write these 24 words in exactly that order
-                            and hide them in a safe place.
+                            {t`secret.description`}
                         </p>
                         {(wordList.length === 24) && (
                             <div className="row p-0 text-left d-flex justify-content-center">
@@ -57,7 +59,7 @@ export function SecretPage() {
                                 className="btn btn-primary"
                                 state={{ from: location.pathname, data: { words: wordList } }}
                             >
-                                Continue
+                                {t`button.continue`}
                             </Link>
                         </div>
                     </div>

@@ -1,7 +1,8 @@
 import { useEffect, useState } from 'react';
 import { Link, useLocation } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { createWallet } from '../../../ton/utils';
-import { LocationParams } from '../types';
+import { LocationParams } from '../../../types';
 
 export function CongratulationPage() {
     const [createDone, setCreateDone] = useState(false);
@@ -17,15 +18,17 @@ export function CongratulationPage() {
         getCreateWallet().then();
     }, []);
 
+    const { t } = useTranslation();
+
     return (
         <main className="page-main">
             <div className="container">
                 <div className="row">
                     <div className="col-md-8 col-lg-4 mx-auto text-center">
                         <div className="main-icon"><i className="fa-duotone fa-shield-check" /></div>
-                        <h2 className="main-title">Congratulations!</h2>
+                        <h2 className="main-title">{t`congratulations.title`}</h2>
                         <p className="main-desc">
-                            Your wallet has been successfully created
+                            {t`congratulations.description`}
                         </p>
                         <div className="main-buttons">
                             <Link
@@ -33,7 +36,7 @@ export function CongratulationPage() {
                                 className="btn btn-primary"
                                 style={{ pointerEvents: createDone ? 'auto' : 'none' }}
                             >
-                                Got it, Start using
+                                {t`button.got_it_start_using`}
                             </Link>
                         </div>
                     </div>

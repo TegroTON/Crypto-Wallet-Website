@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { useLocation, useNavigate } from 'react-router-dom';
+import { useTranslation } from 'react-i18next';
 import { addJetton, checkJettonValid, getJettonData } from '../../../ton/utils';
-import { LocationParams } from '../types';
+import { LocationParams } from '../../../types';
 
 export function AddTokenPage() {
     const location = useLocation();
@@ -39,6 +40,8 @@ export function AddTokenPage() {
         });
     };
 
+    const { t } = useTranslation();
+
     return (
         <main className="page-main">
             <div className="container">
@@ -47,17 +50,17 @@ export function AddTokenPage() {
                         <div className="main-icon text-center">
                             <i className="fa-duotone fa-hexagon-image" />
                         </div>
-                        <h2 className="main-title text-center">Import Tokens</h2>
+                        <h2 className="main-title text-center">{t`add_token.title`}</h2>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="needs-validation mx-auto mt-5"
                         >
                             <div className="mb-4">
-                                <label>Token Contract Address</label>
+                                <label>{t`add_token.address`}</label>
                                 <div className="input-group mt-2">
                                     <input
                                         type="text"
-                                        placeholder="Enter Contract Address"
+                                        placeholder={t`add_token.address_placeholder`}
                                         className="form-control"
                                         {...register('jetton_address', {
                                             required: true,
@@ -68,11 +71,11 @@ export function AddTokenPage() {
                             </div>
 
                             <div className="mb-4">
-                                <label>Token Symbol</label>
+                                <label>{t`add_token.symbol`}</label>
                                 <div className="input-group mt-2 mb-2">
                                     <input
                                         type="text"
-                                        placeholder="For example - TGR"
+                                        placeholder={t`add_token.symbol_placeholder`}
                                         className="form-control"
                                         disabled
                                         {...register('jetton_symbol', { required: true })}
@@ -81,7 +84,7 @@ export function AddTokenPage() {
                             </div>
 
                             <div className="mb-4">
-                                <label>Token Decimal</label>
+                                <label>{t`add_token.decimal`}</label>
                                 <div className="mt-2 mb-2">
                                     <input
                                         type="number"
@@ -99,7 +102,7 @@ export function AddTokenPage() {
                                     type="submit"
                                     disabled={!isValid}
                                 >
-                                    Add Custom Token
+                                    {t`button.add_custom_token`}
                                 </button>
                             </div>
                         </form>

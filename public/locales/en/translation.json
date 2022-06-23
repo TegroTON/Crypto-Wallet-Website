@@ -1,0 +1,109 @@
+{
+  "login": {
+    "description": "TON wallet allows you to make fast and secure blockchain-based payments without intermediaries."
+  },
+  "connect": {
+    "title": "Enter the secret key",
+    "description": "To restore access, enter the 24 secret words\nyou received when creating a wallet"
+  },
+  "create": {
+    "title": "Take a pen and paper",
+    "description": "Get ready to write down the secret key. This is the only way to regain access to the wallet. It's safest not to store key on devices."
+  },
+  "secret": {
+    "title": "Your secret key",
+    "description": "Write these 24 words in exactly that order and hide them in a safe place."
+  },
+  "secret_check": {
+    "title": "Let's check",
+    "description": "To make sure you spelled the words correctly, enter words",
+    "and": "and"
+  },
+  "new_password": {
+    "title": "Enter password",
+    "description": "Create a password to enter the\napplication and perform operations.",
+    "create_new_password": "Create a new password",
+    "repeat_password": "Repeat password"
+  },
+  "congratulations": {
+    "title": "Congratulations!",
+    "description": "Your wallet has been successfully created"
+  },
+  "wallet": {
+    "updating": "Updating",
+    "receive": "Receive",
+    "send": "Send",
+    "your_balance": "Your balance:",
+    "tokens": "Tokens",
+    "delete": "Delete",
+    "all_transactions": "All Transactions",
+    "trans": {
+      "received": "Received:",
+      "sent": "Sent:",
+      "date": "Date",
+      "sender": "Sender",
+      "message": "Message",
+      "recipient": "Recipient",
+      "send_to_this_address": "Send to this address"
+    },
+    "load_more": "Load more",
+    "add_token_description": "You can always add custom tokens\nto our wallet to manage them.",
+    "add_token_button": "Add Custom Token"
+  },
+  "add_token": {
+    "title": "Import Token",
+    "address": "Token Contract Address",
+    "address_placeholder": "Enter Contract Address",
+    "symbol": "Token Symbol",
+    "symbol_placeholder": "For example - TGR",
+    "decimal": "Token Decimal"
+  },
+  "settings": {
+    "settings": "Settings",
+    "primary_language": "Primary language",
+    "currency": "Currency",
+    "contract_version": "Contract version",
+    "contact_support": "Contact Support",
+    "reset_wallet": "Reset wallet",
+    "reset_wallet_confirm": "Are you really want to reset wallet?"
+  },
+  "send": {
+    "send": "Send",
+    "recipient": "Recipient",
+    "enter_wallet_address": "Enter wallet address",
+    "amount": "Amount",
+    "your_balance": "Your balance",
+    "do_you_send": "Do you send",
+    "fee": "Fee",
+    "message": "Message",
+    "message_description": "Messages are not encrypted (optional)"
+  },
+  "receive": {
+    "wallet_address": "Wallet address"
+  },
+  "sending": {
+    "title": "Transaction processing",
+    "description": "This may take a few minutes, please be patient."
+  },
+  "payment_protect": {
+    "enter_password": "Enter password",
+    "to_make_trans": "To make a transaction",
+    "password": "Password",
+    "send": "Send"
+  },
+  "successful": {
+    "title": "Successfully!",
+    "description": "Transaction confirmed"
+  },
+  "button": {
+    "continue": "Continue",
+    "got_it_continue": "Got it, let's continue",
+    "create_new": "Create new",
+    "connect_wallet": "Connect wallet",
+    "got_it_start_using": "Got it, Start using",
+    "copy": "Copy",
+    "share": "Share",
+    "go_to_wallet": "Go to wallet",
+    "add_custom_token": "Add Custom Token"
+  }
+}

@@ -2,6 +2,7 @@ import { Link, useLocation } from 'react-router-dom';
 import { useEffect, useState } from 'react';
 import { fromNano } from 'ton';
 import { Buffer } from 'buffer';
+import { useTranslation } from 'react-i18next';
 import {
     getBalance,
     getMnemonic,
@@ -14,16 +15,19 @@ import {
     getWalletType,
 } from '../../../ton/utils';
 import { ReceivedTransaction, SentTransaction } from './Transaction';
-import { LocationParams, WalletInfo } from '../types';
+import { currencies, LocationParams, WalletInfo } from '../../../types';
 import { getTONPrice, PriceInfo } from '../../../ton/coingecko';
-import { round } from '../../utils';
+import { getCurrency, round } from '../../utils';
 
 export function WalletPage() {
     const location = useLocation();
     const state = location.state as LocationParams;
-    const [TONPrice, setTONPrice] = useState<PriceInfo>({ price: 0, priceChange: 0 });
+    const [TONPrice, setTONPrice] = useState<PriceInfo>({
+        price: 0,
+        priceChange: 0,
+    });
     const [walletInfo, setWalletInfo] = useState<WalletInfo>(
-        state?.data.walletInfo || ({
+        state?.data?.walletInfo || ({
             mnemonic: '',
             encrypted: '',
             public_key: Buffer.from('', 'hex'),
@@ -36,10 +40,15 @@ export function WalletPage() {
         } as WalletInfo),
     );
 
+    const currency = getCurrency();
+
+    const { t } = useTranslation();
+
     const updateWalletInfo = async () => {
-        if (walletInfo.wallet.address) setTONPrice(await getTONPrice());
+        if (walletInfo.wallet.address) setTONPrice(await getTONPrice(currency));
         const walletType = getWalletType();
         const address = getAddress(walletType);
+        console.log(walletType, address);
         const balance = getBalance(address);
         const seqno = getSeqno(address);
         const [mnemonic, encrypted] = await getMnemonic();
@@ -60,14 +69,17 @@ export function WalletPage() {
                 jettons: await jettons,
             },
         });
-        setTONPrice(await getTONPrice());
+        setTONPrice(await getTONPrice(currency));
     };
 
     const updateJettons = async () => {
         const jettons = await loadJettons(walletInfo.wallet.address);
         setWalletInfo({
             ...walletInfo,
-            wallet: { ...walletInfo.wallet, jettons },
+            wallet: {
+                ...walletInfo.wallet,
+                jettons,
+            },
         });
     };
 
@@ -79,12 +91,16 @@ export function WalletPage() {
         );
         setWalletInfo({
             ...walletInfo,
-            wallet: { ...walletInfo.wallet, transactions },
+            wallet: {
+                ...walletInfo.wallet,
+                transactions,
+            },
         });
     };
 
     useEffect(() => {
-        updateWalletInfo().then();
+        updateWalletInfo()
+            .then();
         const timer = setInterval(updateWalletInfo, 30 * 1000);
         return () => {
             clearInterval(timer);
@@ -103,7 +119,7 @@ export function WalletPage() {
                             <h3 className="wallet-title mb-0 mt-5">
                                 {walletInfo.wallet.address ? (`${walletInfo.wallet.balance} TON`) : (
                                     <h2 className="main-title" style={{ color: 'white' }}>
-                                        Updating
+                                        {t`wallet.updating`}
                                         <span className="dots">
                                             <span className="dot-one">.</span>
                                             <span className="dot-two">.</span>
@@ -119,20 +135,20 @@ export function WalletPage() {
                                 {TONPrice.price > 0 ? (
                                     <>
                                         <div>
-                                            Your balance:
+                                            {t`wallet.your_balance`}
                                             <span className="ml-2">
-                                                {`$${round(TONPrice.price * walletInfo.wallet.balance, 2)}`}
+                                                {`${currencies[currency]}${round(TONPrice.price * walletInfo.wallet.balance, 2)}`}
                                             </span>
                                         </div>
                                         {TONPrice.priceChange < 0 ? (
                                             <div className="color-red">
                                                 <i className="fa-duotone fa-chart-line-down mr-2" />
-                                                {`${round(TONPrice.priceChange * 100, 1)}%`}
+                                                {`${round(TONPrice.priceChange, 1)}%`}
                                             </div>
                                         ) : (
                                             <div className="color-green">
                                                 <i className="fa-duotone fa-chart-line-up mr-2" />
-                                                {`${round(TONPrice.priceChange * 100, 1)}%`}
+                                                {`${round(TONPrice.priceChange, 1)}%`}
                                             </div>
                                         )}
                                     </>
@@ -153,7 +169,7 @@ export function WalletPage() {
                                     style={{ pointerEvents: walletInfo.wallet.address ? 'auto' : 'none' }}
                                 >
                                     <i className="fa-regular fa-arrow-down-left font-18 mr-3" />
-                                    Receive
+                                    {t`wallet.receive`}
                                 </Link>
                                 {walletInfo.wallet.balance > 0 ? (
                                     <Link
@@ -164,7 +180,7 @@ export function WalletPage() {
                                             data: { walletInfo },
                                         }}
                                     >
-                                        Send
+                                        {t`wallet.send`}
                                         <i className="fa-regular fa-arrow-up-right font-18 ml-3" />
                                     </Link>
                                 ) : ('')}
@@ -177,7 +193,7 @@ export function WalletPage() {
                 <div className="row">
                     <div className="col-md-8 col-lg-5 mx-auto">
                         <div className="wallet-token border-bottom pb-5 mb-5">
-                            <h2 className="wallet-head__title mb-4">Tokens</h2>
+                            <h2 className="wallet-head__title mb-4">{t`wallet.tokens`}</h2>
 
                             {walletInfo.wallet.jettons?.map((jt, i) => (
                                 <div key={i} className="wh-item position-relative">
@@ -186,7 +202,10 @@ export function WalletPage() {
                                         className="d-flex align-item-center"
                                         state={{
                                             from: location.pathname,
-                                            data: { walletInfo, jettonInfo: jt },
+                                            data: {
+                                                walletInfo,
+                                                jettonInfo: jt,
+                                            },
                                         }}
                                     >
                                         <div className="wh-item__icon mr-3">
@@ -215,8 +234,9 @@ export function WalletPage() {
                                     <a
                                         style={{ cursor: 'pointer' }}
                                         onClick={() => {
-                                            if (confirm(`Delete ${jt.jetton.meta.symbol}?`)) removeJetton(jt.jetton.address);
-                                            updateJettons().then();
+                                            if (confirm(`${t`wallet.delete`} ${jt.jetton.meta.symbol}?`)) removeJetton(jt.jetton.address);
+                                            updateJettons()
+                                                .then();
                                         }}
                                         className="wm-item__del"
                                     >
@@ -226,10 +246,7 @@ export function WalletPage() {
                             ))}
 
                             <div className="alert border text-center" role="alert">
-                                You can always add custom tokens
-                                <br />
-                                to our wallet to manage
-                                them.
+                                {t`wallet.add_token_description`}
                             </div>
                             <div className="text-center">
                                 <Link
@@ -240,14 +257,16 @@ export function WalletPage() {
                                         data: { walletInfo },
                                     }}
                                 >
-                                    Add Custom Token
+                                    {t`wallet.add_token_button`}
                                 </Link>
                             </div>
                         </div>
 
                         <div className="wallet-history wh accordion" id="accordionTon">
-                            <div className="wallet-head d-flex align-iteml-center justify-content-between">
-                                <h2 className="wallet-head__title">All Transactions</h2>
+                            <div
+                                className="wallet-head d-flex align-iteml-center justify-content-between"
+                            >
+                                <h2 className="wallet-head__title">{t`wallet.all_transactions`}</h2>
                             </div>
 
                             {walletInfo.wallet.transactions?.map((tr, i) => {
@@ -289,7 +308,7 @@ export function WalletPage() {
                                     style={{ cursor: 'pointer' }}
                                     className="btn btn-secondary"
                                 >
-                                    Load more
+                                    {t`wallet.load_more`}
                                 </a>
                             </div>
                         </div>

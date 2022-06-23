@@ -1,6 +1,7 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import { useEffect } from 'react';
-import { LocationParams, Send } from '../types';
+import { useTranslation } from 'react-i18next';
+import { LocationParams, Send } from '../../../types';
 import { checkSeqnoUpdate, sendTransaction } from '../../../ton/utils';
 
 export function SendingPage() {
@@ -23,6 +24,8 @@ export function SendingPage() {
         return () => clearInterval(interval);
     }, []);
 
+    const { t } = useTranslation();
+
     return (
         <main className="page-main">
             <div className="container">
@@ -30,7 +33,7 @@ export function SendingPage() {
                     <div className="col-md-8 col-lg-5 mx-auto text-center">
                         <div className="main-icon fi-spin"><i className="fa-regular fa-gear" /></div>
                         <h2 className="main-title">
-                            Transaction processing
+                            {t`sending.title`}
                             <span className="dots">
                                 <span className="dot-one">.</span>
                                 <span className="dot-two">.</span>
@@ -38,7 +41,7 @@ export function SendingPage() {
                             </span>
                         </h2>
                         <p className="main-desc">
-                            This may take a few minutes, please be patient.
+                            {t`sending.description`}
                         </p>
                     </div>
                 </div>

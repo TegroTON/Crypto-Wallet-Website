@@ -24,6 +24,7 @@ import { AddTokenPage } from './templates/wallet/wallet/AddToken';
 import { JettonPage } from './templates/wallet/wallet/Jetton';
 import { MainPage } from './templates/wallet/main';
 import { DownloadPage } from './templates/wallet/main/Download';
+import './templates/i18n';
 
 export default function App() {
     return (

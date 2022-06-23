@@ -1,28 +1,31 @@
-import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
-import { useForm } from 'react-hook-form';
-import { Dropdown } from 'react-bootstrap';
+import {useLocation, useNavigate, useSearchParams} from 'react-router-dom';
+import {useForm} from 'react-hook-form';
+import {Dropdown} from 'react-bootstrap';
 import DropdownToggle from 'react-bootstrap/DropdownToggle';
 import DropdownMenu from 'react-bootstrap/DropdownMenu';
 import DropdownItem from 'react-bootstrap/DropdownItem';
-import { useRef, useState } from 'react';
-import { LocationParams, JettonInfo } from '../types';
-import { checkAddrValid } from '../../../ton/utils';
+import {useRef, useState} from 'react';
+import {useTranslation} from 'react-i18next';
+import {LocationParams, JettonInfo} from '../../../types';
+import {checkAddrValid} from '../../../ton/utils';
 
 export function SendPage() {
     const location = useLocation();
     const state = location.state as LocationParams;
-    const { walletInfo } = state.data;
-    const { jettonInfo } = state.data;
-    const { send } = state.data;
+    const {walletInfo} = state.data;
+    const {jettonInfo} = state.data;
+    const {send} = state.data;
     const navigator = useNavigate();
     const [searchParams] = useSearchParams();
 
+    const {t} = useTranslation();
+
     const {
         register,
-        formState: { errors },
+        formState: {errors},
         handleSubmit,
         watch,
-    } = useForm({ mode: 'onChange' });
+    } = useForm({mode: 'onChange'});
 
     const amount = useRef({});
     amount.current = watch('amount', 0);
@@ -71,29 +74,29 @@ export function SendPage() {
                 <div className="row">
                     <div className="col-md-8 col-lg-4 mx-auto">
                         <div className="main-icon text-center">
-                            <i className="fa-duotone fa-paper-plane-top fa-rotate-270" />
+                            <i className="fa-duotone fa-paper-plane-top fa-rotate-270"/>
                         </div>
                         <h1 className="main-title text-center">
-                            {`Send ${symbol}`}
+                            {`${t`send.send`} ${symbol}`}
                         </h1>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="needs-validation mx-auto mt-5"
                         >
                             <div className="mb-4">
-                                <label>Recipient</label>
+                                <label>{t`send.recipient`}</label>
                                 <div className="input-group mt-2">
                                     <div className="input-group-text">
-                                        <i className="fa-regular fa-qrcode fa-xl" />
+                                        <i className="fa-regular fa-qrcode fa-xl"/>
                                     </div>
                                     <input
                                         defaultValue={
                                             send?.address || searchParams.get('address') || ''
                                         }
                                         type="text"
-                                        placeholder="Enter wallet address"
+                                        placeholder={t`send.enter_wallet_address`}
                                         className="form-control"
-                                        style={errors.recipient_address ? { boxShadow: '0 0 0 .2rem rgba(255,0,0,0.25)' } : {}}
+                                        style={errors.recipient_address ? {boxShadow: '0 0 0 .2rem rgba(255,0,0,0.25)'} : {}}
                                         {...register('recipient_address', {
                                             required: true,
                                             validate: (value) => checkAddrValid(value),
@@ -103,13 +106,16 @@ export function SendPage() {
                             </div>
 
                             <div className="mb-4">
-                                <label>Amount</label>
+                                <label>{t`send.amount`}</label>
                                 <div
                                     className="d-flex align-items-center border"
-                                    style={{ height: '60px', borderRadius: '8px' }}
+                                    style={{
+                                        height: '60px',
+                                        borderRadius: '8px'
+                                    }}
                                 >
                                     <Dropdown
-                                        onSelect={(eventKey) => {
+                                        onSelect={(eventKey: any) => {
                                             installJetton(eventKey || '');
                                         }}
                                     >
@@ -117,7 +123,7 @@ export function SendPage() {
                                             <DropdownToggle
                                                 as="a"
                                                 className="px-3 align-items-center"
-                                                style={{ cursor: 'pointer' }}
+                                                style={{cursor: 'pointer'}}
                                             >
                                                 <img
                                                     src={jetton.jetton.meta.image || ''}
@@ -133,7 +139,7 @@ export function SendPage() {
                                             <DropdownToggle
                                                 as="a"
                                                 className="px-3 align-items-center"
-                                                style={{ cursor: 'pointer' }}
+                                                style={{cursor: 'pointer'}}
                                             >
                                                 <img
                                                     src="/img/ton.png"
@@ -205,27 +211,29 @@ export function SendPage() {
                                     </div>
                                 </div>
                                 <div className="d-flex align-items-center font-14 m-2">
-                                    <span className="color-grey">Your Balance</span>
+                                    <span className="color-grey">{t`send.your_balance`}</span>
                                     <span className="ml-auto color-blue">
                                         {`${jetton ? jetton.balance : walletInfo.wallet.balance} ${symbol}`}
                                     </span>
                                 </div>
                                 <div className="alert border my-4 p-3" role="alert">
                                     <div className="d-flex align-items-center small mb-3">
-                                        <span className="color-dark font-weight-medium">Do you send :</span>
+                                        <span
+                                            className="color-dark font-weight-medium">{t`send.do_you_send`}</span>
                                         <span className="ml-auto color-grey">
                                             {`${parseFloat(amount.current as string) || 0} ${symbol}`}
                                         </span>
                                     </div>
                                     <div className="d-flex align-items-center small">
-                                        <span className="color-dark font-weight-medium">Fee:</span>
+                                        <span
+                                            className="color-dark font-weight-medium">{t`send.fee`}</span>
                                         <span className="ml-auto color-grey">{`~ ${fee} TON`}</span>
                                     </div>
                                 </div>
                             </div>
 
                             <div className="mb-4">
-                                <label>Message</label>
+                                <label>{t`send.message`}</label>
                                 <textarea
                                     defaultValue={
                                         searchParams.get('message') || send?.message || ''
@@ -233,7 +241,7 @@ export function SendPage() {
                                     id=""
                                     cols={30}
                                     rows={3}
-                                    placeholder="Messages are not encrypted (optional)"
+                                    placeholder={t`send.message_description`}
                                     className="mt-2 form-control"
                                     {...register('message')}
                                 />
@@ -243,7 +251,7 @@ export function SendPage() {
                                     className="btn btn-primary"
                                     type="submit"
                                 >
-                                    Continue
+                                    {t`button.continue`}
                                 </button>
                             </div>
                         </form>
