@@ -12,12 +12,16 @@ export function SendingPage() {
     const { send } = state.data;
 
     useEffect(() => {
-        sendTransaction(send as Send, state.data.pass || '').then();
+        sendTransaction(send as Send, state.data.pass || '')
+            .then();
         const interval = setInterval(async () => {
-            if (await checkSeqnoUpdate(walletInfo.wallet.seqno || 0, walletInfo.walletType)) {
+            if (await checkSeqnoUpdate(walletInfo?.wallet.seqno || 0, walletInfo?.walletType)) {
                 clearInterval(interval);
                 navigate('/successful', {
-                    state: { noBack: true, data: { walletInfo } },
+                    state: {
+                        noBack: true,
+                        data: { walletInfo },
+                    },
                 });
             }
         }, 1000);

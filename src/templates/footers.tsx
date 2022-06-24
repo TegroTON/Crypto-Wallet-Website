@@ -9,7 +9,7 @@ export function Footer() {
                         target="_blank"
                         rel="noreferrer"
                     >
-                        TON Hold by Tegro.Money
+                        TON Hold by Tegro
                     </a>
                     <div className="soc-box d-flex align-items-center">
                         <a
@@ -18,7 +18,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-instagram"/>
+                            <i className="fa-brands fa-instagram" />
                         </a>
                         <a
                             href="https://t.me/tegromoney"
@@ -26,7 +26,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-telegram"/>
+                            <i className="fa-brands fa-telegram" />
                         </a>
                         <a
                             href="https://vk.com/tegromoney"
@@ -34,7 +34,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-vk"/>
+                            <i className="fa-brands fa-vk" />
                         </a>
                         <a
                             href="https://twitter.com/tegromoney"
@@ -42,7 +42,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-twitter"/>
+                            <i className="fa-brands fa-twitter" />
                         </a>
                         <a
                             href="https://www.reddit.com/user/TegroMoney"
@@ -50,7 +50,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-reddit-alien"/>
+                            <i className="fa-brands fa-reddit-alien" />
                         </a>
                         <a
                             href="https://medium.com/@tegromoney"
@@ -58,7 +58,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-medium"/>
+                            <i className="fa-brands fa-medium" />
                         </a>
                         <a
                             href="https://www.linkedin.com/company/tegromoney/"
@@ -66,7 +66,7 @@ export function Footer() {
                             className="soc-link"
                             rel="noreferrer"
                         >
-                            <i className="fa-brands fa-linkedin-in"/>
+                            <i className="fa-brands fa-linkedin-in" />
                         </a>
                     </div>
                 </div>
@@ -87,7 +87,7 @@ export function MainFooter() {
                             target="_blank"
                             rel="noreferrer"
                         >
-                            TON Hold by Tegro.Money
+                            TON Hold by Tegro
                         </a>
                     </div>
                     <div className="col-md-6 col-lg-5 mt-4 mt-md-0 d-flex">
@@ -98,7 +98,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-telegram"/>
+                                <i className="fi-icon icon-telegram" />
                             </a>
                             <a
                                 href="https://www.instagram.com/tegromoney/"
@@ -106,7 +106,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-instagram"/>
+                                <i className="fi-icon icon-instagram" />
                             </a>
                             <a
                                 href="https://vk.com/tegromoney"
@@ -114,7 +114,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-vk"/>
+                                <i className="fi-icon icon-vk" />
                             </a>
                             <a
                                 href="https://twitter.com/tegromoney"
@@ -122,7 +122,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-twitter"/>
+                                <i className="fi-icon icon-twitter" />
                             </a>
                             <a
                                 href="https://www.reddit.com/user/TegroMoney"
@@ -130,7 +130,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-reddit"/>
+                                <i className="fi-icon icon-reddit" />
                             </a>
                             <a
                                 href="https://medium.com/@tegromoney"
@@ -138,7 +138,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-medium"/>
+                                <i className="fi-icon icon-medium" />
                             </a>
                             <a
                                 href="https://www.linkedin.com/company/tegromoney/"
@@ -146,7 +146,7 @@ export function MainFooter() {
                                 className="soc-link"
                                 rel="noreferrer"
                             >
-                                <i className="fi-icon icon-linkedin"/>
+                                <i className="fi-icon icon-linkedin" />
                             </a>
                         </div>
                     </div>

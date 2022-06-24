@@ -4,12 +4,12 @@ import { useTranslation } from 'react-i18next';
 import { LocationParams } from '../../../types';
 import { checkPassValid } from '../../../ton/utils';
 
-export function PaymentProtectionPage() {
+export function ProtectionPage() {
     const location = useLocation();
     const state = location.state as LocationParams;
-    const { walletInfo } = state.data;
-    const { send } = state.data;
     const navigator = useNavigate();
+
+    const { send } = state.data;
 
     const {
         register,
@@ -18,12 +18,12 @@ export function PaymentProtectionPage() {
     } = useForm({ mode: 'onChange' });
 
     const onSubmit = async (data: any) => {
-        navigator('/sending', {
+        navigator(send ? '/sending' : '/create-wallet-secret', {
             state: {
+                ...state,
                 noBack: true,
                 data: {
-                    walletInfo,
-                    send,
+                    ...state.data,
                     pass: data.password,
                 },
             },
@@ -38,18 +38,22 @@ export function PaymentProtectionPage() {
                 <div className="row">
                     <div className="col-md-8 col-lg-4 mx-auto text-center">
                         <div className="main-icon"><i className="fa-duotone fa-unlock" /></div>
-                        <h2 className="main-title">{t`payment_protect.enter_password`}</h2>
-                        <p className="main-desc mb-4">{t`payment_protect.to_make_trans`}</p>
+                        <h2 className="main-title">{t`protect.enter_password`}</h2>
+                        <p className="main-desc mb-4">{send ? t`protect.to_make_trans` : t`protect.to_unlock_seed`}</p>
                         <form
                             onSubmit={handleSubmit(onSubmit)}
                             className="main-form mx-auto"
                             style={{ maxWidth: '350px' }}
                         >
                             <div className="input-group mb-3" style={{ height: '60px' }}>
-                                <div className="input-group-text"><i className="fa-regular fa-unlock font-24" /></div>
+                                <div className="input-group-text">
+                                    <i
+                                        className="fa-regular fa-unlock font-24"
+                                    />
+                                </div>
                                 <input
                                     type="password"
-                                    placeholder={t`payment_protect.password`}
+                                    placeholder={t`protect.password`}
                                     className="form-control"
                                     style={{ height: '60px' }}
                                     {...register('password', {
@@ -60,11 +64,12 @@ export function PaymentProtectionPage() {
                             </div>
                             <div className="main-buttons">
                                 <button
-                                    className="btn btn-primary"
+                                    className="btn btn-primary d"
                                     type="submit"
                                     disabled={!isValid}
                                 >
-                                    {`${t`payment_protect.send`} ${send?.jetton ? send.jetton.jetton.meta.symbol : 'TON'}`}
+                                    {send ? `${t`button.send`} ${send?.jetton ? send.jetton.jetton.meta.symbol : 'TON'}`
+                                        : t`button.unlock`}
                                 </button>
                             </div>
                         </form>

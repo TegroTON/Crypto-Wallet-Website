@@ -1,6 +1,6 @@
 import { useTranslation } from 'react-i18next';
 import {
-    currencies, Currency, languages, Language,
+    currencies, Currency, languages, Language, WalletInfo,
 } from '../types';
 
 export function round(number: number, scale: number) {
@@ -40,4 +40,23 @@ export function getNextLanguage() {
     const lang = getLanguage();
     const langList = Object.keys(languages);
     return langList[langList.indexOf(lang) + 1] || langList[0];
+}
+
+export function writeState(state: WalletInfo) {
+    localStorage.setItem('state', JSON.stringify({
+        ...state,
+        wallet: {
+            ...state.wallet,
+            transactions: [],
+            jettons: [],
+        },
+    }));
+}
+
+export function readState(): WalletInfo | null {
+    const state_str = localStorage.getItem('state');
+    if (state_str) {
+        return JSON.parse(state_str) as WalletInfo || null;
+    }
+    return null;
 }

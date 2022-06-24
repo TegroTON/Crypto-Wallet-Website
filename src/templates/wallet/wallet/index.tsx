@@ -1,23 +1,16 @@
 import { Link, useLocation } from 'react-router-dom';
-import { useEffect, useState } from 'react';
-import { fromNano } from 'ton';
-import { Buffer } from 'buffer';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
-    getBalance,
-    getMnemonic,
-    getTransactions,
-    getAddress,
-    getSeqno,
-    getPubKey,
-    loadJettons,
     removeJetton,
-    getWalletType,
 } from '../../../ton/utils';
 import { ReceivedTransaction, SentTransaction } from './Transaction';
 import { currencies, LocationParams, WalletInfo } from '../../../types';
 import { getTONPrice, PriceInfo } from '../../../ton/coingecko';
-import { getCurrency, round } from '../../utils';
+import {
+    getCurrency, readState, round, writeState,
+} from '../../utils';
+import { WalletContext, WalletContextType } from '../../../context';
 
 export function WalletPage() {
     const location = useLocation();
@@ -26,85 +19,28 @@ export function WalletPage() {
         price: 0,
         priceChange: 0,
     });
-    const [walletInfo, setWalletInfo] = useState<WalletInfo>(
-        state?.data?.walletInfo || ({
-            mnemonic: '',
-            encrypted: '',
-            public_key: Buffer.from('', 'hex'),
-            walletType: 'v3r2',
-            wallet: {
-                balance: 0,
-                address: '',
-                seqno: 0,
-            },
-        } as WalletInfo),
-    );
 
-    const currency = getCurrency();
+    const {
+        walletInfo,
+        updateWalletInfo,
+        updateJettons,
+        updateTransactions,
+        updating,
+    } = useContext(WalletContext) as WalletContextType;
 
     const { t } = useTranslation();
+    const currency = getCurrency();
 
-    const updateWalletInfo = async () => {
-        if (walletInfo.wallet.address) setTONPrice(await getTONPrice(currency));
-        const walletType = getWalletType();
-        const address = getAddress(walletType);
-        console.log(walletType, address);
-        const balance = getBalance(address);
-        const seqno = getSeqno(address);
-        const [mnemonic, encrypted] = await getMnemonic();
-        const pub_key = getPubKey();
-        const jettons = loadJettons(address);
-        const transactions = getTransactions(address);
-        setWalletInfo({
-            ...walletInfo,
-            mnemonic,
-            encrypted,
-            public_key: pub_key,
-            walletType,
-            wallet: {
-                address,
-                balance: parseFloat(fromNano(await balance)),
-                seqno: await seqno,
-                transactions: await transactions,
-                jettons: await jettons,
-            },
-        });
+    const updateTONPrice = async () => {
         setTONPrice(await getTONPrice(currency));
     };
 
-    const updateJettons = async () => {
-        const jettons = await loadJettons(walletInfo.wallet.address);
-        setWalletInfo({
-            ...walletInfo,
-            wallet: {
-                ...walletInfo.wallet,
-                jettons,
-            },
-        });
-    };
-
-    const updateTransactions = async () => {
-        const limit = (walletInfo.wallet.transactions?.length ?? 5) + 5;
-        const transactions = await getTransactions(
-            walletInfo.wallet.address,
-            limit,
-        );
-        setWalletInfo({
-            ...walletInfo,
-            wallet: {
-                ...walletInfo.wallet,
-                transactions,
-            },
-        });
-    };
-
     useEffect(() => {
-        updateWalletInfo()
-            .then();
-        const timer = setInterval(updateWalletInfo, 30 * 1000);
-        return () => {
-            clearInterval(timer);
-        };
+        if (walletInfo.wallet.address) {
+            updateTONPrice()
+                .then();
+        }
+        console.log('Вызов useEffect');
     }, []);
 
     return (
@@ -166,7 +102,7 @@ export function WalletPage() {
                                         from: location.pathname,
                                         data: { walletInfo },
                                     }}
-                                    style={{ pointerEvents: walletInfo.wallet.address ? 'auto' : 'none' }}
+                                    style={{ pointerEvents: updating ? 'none' : 'auto' }}
                                 >
                                     <i className="fa-regular fa-arrow-down-left font-18 mr-3" />
                                     {t`wallet.receive`}
@@ -179,6 +115,7 @@ export function WalletPage() {
                                             from: location.pathname,
                                             data: { walletInfo },
                                         }}
+                                        style={{ pointerEvents: updating ? 'none' : 'auto' }}
                                     >
                                         {t`wallet.send`}
                                         <i className="fa-regular fa-arrow-up-right font-18 ml-3" />
@@ -269,48 +206,56 @@ export function WalletPage() {
                                 <h2 className="wallet-head__title">{t`wallet.all_transactions`}</h2>
                             </div>
 
-                            {walletInfo.wallet.transactions?.map((tr, i) => {
-                                if (tr.type === 'external') {
-                                    return (
-                                        <SentTransaction
-                                            amount={tr.amount}
-                                            address={tr.address}
-                                            message={tr.msg}
-                                            timestamp={tr.timestamp}
-                                            i={i}
-                                            state={{
-                                                from: location.pathname,
-                                                data: { walletInfo },
-                                            }}
-                                        />
-                                    );
-                                }
-                                if (tr.type === 'internal') {
-                                    return (
-                                        <ReceivedTransaction
-                                            amount={tr.amount}
-                                            address={tr.address}
-                                            message={tr.msg}
-                                            timestamp={tr.timestamp}
-                                            i={i}
-                                            state={{
-                                                from: location.pathname,
-                                                data: { walletInfo },
-                                            }}
-                                        />
-                                    );
-                                }
-                            })}
+                            {!walletInfo.wallet.transactions?.length ? (
+                                <div className="alert border text-center" role="alert">
+                                    {t`wallet.no_transactions`}
+                                </div>
+                            ) : (
+                                <>
+                                    {walletInfo.wallet.transactions?.map((tr, i) => {
+                                        if (tr.type === 'external') {
+                                            return (
+                                                <SentTransaction
+                                                    amount={tr.amount}
+                                                    address={tr.address}
+                                                    message={tr.msg}
+                                                    timestamp={tr.timestamp}
+                                                    i={i}
+                                                    state={{
+                                                        from: location.pathname,
+                                                        data: { walletInfo },
+                                                    }}
+                                                />
+                                            );
+                                        }
+                                        if (tr.type === 'internal') {
+                                            return (
+                                                <ReceivedTransaction
+                                                    amount={tr.amount}
+                                                    address={tr.address}
+                                                    message={tr.msg}
+                                                    timestamp={tr.timestamp}
+                                                    i={i}
+                                                    state={{
+                                                        from: location.pathname,
+                                                        data: { walletInfo },
+                                                    }}
+                                                />
+                                            );
+                                        }
+                                    })}
 
-                            <div className="pt-4 text-center">
-                                <a
-                                    onClick={async () => updateTransactions()}
-                                    style={{ cursor: 'pointer' }}
-                                    className="btn btn-secondary"
-                                >
-                                    {t`wallet.load_more`}
-                                </a>
-                            </div>
+                                    <div className="pt-4 text-center">
+                                        <a
+                                            onClick={async () => updateTransactions()}
+                                            style={{ cursor: 'pointer' }}
+                                            className="btn btn-secondary"
+                                        >
+                                            {t`wallet.load_more`}
+                                        </a>
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
                 </div>

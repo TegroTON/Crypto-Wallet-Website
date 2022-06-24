@@ -8,7 +8,7 @@ export interface LocationParams {
     noBack?: boolean;
     noLang?: boolean;
     data: {
-        walletInfo: WalletInfo;
+        walletInfo?: WalletInfo;
         send?: Send;
         jettonAddress?: string;
         pass?: string;
@@ -80,13 +80,17 @@ export interface Transaction {
 }
 
 export const currencies = {
-    usd: '$', rub: '₽', uah: '₴', eur: '€',
+    usd: '$',
+    rub: '₽',
+    uah: '₴',
+    eur: '€',
 };
 
 export type Currency = keyof typeof currencies;
 
 export const languages = {
-    en: 'English', ru: 'Русский',
+    en: 'English',
+    ru: 'Русский',
 };
 
 export type Language = keyof typeof languages;

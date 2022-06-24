@@ -135,6 +135,12 @@ export function setMnemonic(words: string[]) {
     localStorage.setItem('encrypted', 'false');
 }
 
+export async function reencryptMnemonic(pass: string, new_pass: string) {
+    const [mnemonic] = await getMnemonic(pass);
+    localStorage.setItem('mnemonic', await encrypt(mnemonic, new_pass));
+    localStorage.setItem('encrypted', 'true');
+}
+
 export function setWalletType(walletType = 'v3r2'): WalletType {
     localStorage.setItem('wallet_type', walletType);
     return walletType;

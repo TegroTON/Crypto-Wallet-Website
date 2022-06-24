@@ -21,8 +21,15 @@
   },
   "new_password": {
     "title": "Enter password",
-    "description": "Create a password to enter the\napplication and perform operations.",
-    "create_new_password": "Create a new password",
+    "description": "Create a password to enter the\napplication and perform operations."
+  },
+  "change_password": {
+    "title": "Change password",
+    "description": "Create a new password to enter the\napplication and perform operations."
+  },
+  "password": {
+    "current_password": "Enter current password",
+    "new_password": "Create a new password",
     "repeat_password": "Repeat password"
   },
   "congratulations": {
@@ -37,6 +44,7 @@
     "tokens": "Tokens",
     "delete": "Delete",
     "all_transactions": "All Transactions",
+    "no_transactions": "You have no transactions",
     "trans": {
       "received": "Received:",
       "sent": "Sent:",
@@ -63,6 +71,8 @@
     "primary_language": "Primary language",
     "currency": "Currency",
     "contract_version": "Contract version",
+    "change_password": "Change password",
+    "backup_seed": "Backup secret key",
     "contact_support": "Contact Support",
     "reset_wallet": "Reset wallet",
     "reset_wallet_confirm": "Are you really want to reset wallet?"
@@ -85,15 +95,16 @@
     "title": "Transaction processing",
     "description": "This may take a few minutes, please be patient."
   },
-  "payment_protect": {
+  "protect": {
     "enter_password": "Enter password",
     "to_make_trans": "To make a transaction",
-    "password": "Password",
-    "send": "Send"
+    "to_unlock_seed": "To unlock secret key",
+    "password": "Password"
   },
   "successful": {
     "title": "Successfully!",
-    "description": "Transaction confirmed"
+    "description": "Transaction confirmed",
+    "password": "Password changed"
   },
   "button": {
     "continue": "Continue",
@@ -104,6 +115,8 @@
     "copy": "Copy",
     "share": "Share",
     "go_to_wallet": "Go to wallet",
-    "add_custom_token": "Add Custom Token"
+    "add_custom_token": "Add Custom Token",
+    "send": "Send",
+    "unlock": "Unlock"
   }
 }

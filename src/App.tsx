@@ -14,7 +14,7 @@ import { SecretCheckPage } from './templates/wallet/create/SecretCheck';
 import { NewPasswordPage } from './templates/wallet/create/NewPassword';
 import { CongratulationPage } from './templates/wallet/create/Congratulation';
 import { SendPage } from './templates/wallet/wallet/Send';
-import { PaymentProtectionPage } from './templates/wallet/wallet/PaymentProtection';
+import { ProtectionPage } from './templates/wallet/wallet/Protection';
 import { SendingPage } from './templates/wallet/wallet/Sending';
 import { SuccessfulPage } from './templates/wallet/wallet/Successful';
 import { ReceivePage } from './templates/wallet/wallet/Receive';
@@ -25,6 +25,7 @@ import { JettonPage } from './templates/wallet/wallet/Jetton';
 import { MainPage } from './templates/wallet/main';
 import { DownloadPage } from './templates/wallet/main/Download';
 import './templates/i18n';
+import { ChangePasswordPage } from './templates/wallet/wallet/ChangePassword';
 
 export default function App() {
     return (
@@ -40,7 +41,7 @@ export default function App() {
                 <Route path="create-wallet-secret-check" element={<SecretCheckPage />} />
                 <Route path="create-wallet-new-password" element={<NewPasswordPage />} />
                 <Route path="create-wallet-congratulations" element={<CongratulationPage />} />
-                <Route path="payment-protect" element={<PaymentProtectionPage />} />
+                <Route path="protect" element={<ProtectionPage />} />
                 <Route path="send-ton" element={<SendPage />} />
                 <Route path="sending" element={<SendingPage />} />
                 <Route path="successful" element={<SuccessfulPage />} />
@@ -49,6 +50,7 @@ export default function App() {
                 <Route path="privacy" element={<PrivacyPage />} />
                 <Route path="add-token" element={<AddTokenPage />} />
                 <Route path="download" element={<DownloadPage />} />
+                <Route path="change-password" element={<ChangePasswordPage />} />
 
                 <Route path="*" element={<Navigate to="/" replace />} />
             </Route>

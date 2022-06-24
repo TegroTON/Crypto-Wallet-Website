@@ -1,17 +1,23 @@
 import { useTranslation } from 'react-i18next';
+import { Link, useLocation } from 'react-router-dom';
 import {
     getCurrency, getLanguage, setCurrency, setLanguage,
 } from '../../utils';
 import {
-    Currency, currencies, Language, languages, WalletType, walletTypes,
+    Currency, currencies, Language, languages, WalletType, walletTypes, LocationParams,
 } from '../../../types';
 import { clearStorage, getWalletType, setWalletType } from '../../../ton/utils';
 
 export function SettingsPage() {
+    const location = useLocation();
+    const state = location.state as LocationParams;
     const language = getLanguage();
     const currency = getCurrency();
     const walletType = getWalletType();
-    const { t, i18n } = useTranslation();
+    const {
+        t,
+        i18n,
+    } = useTranslation();
 
     const changeLang = (lang: string) => {
         setLanguage(lang as Language);
@@ -23,7 +29,9 @@ export function SettingsPage() {
             <div className="container">
                 <div className="row">
                     <div className="col-md-8 col-lg-4 mx-auto">
-                        <div className="main-icon text-center"><i className="fa-duotone fa-gear" /></div>
+                        <div className="main-icon text-center">
+                            <i className="fa-duotone fa-gear" />
+                        </div>
                         <h2 className="main-title text-center">{t`settings.settings`}</h2>
                         <form className="mt-5">
                             <ul>
@@ -34,15 +42,19 @@ export function SettingsPage() {
                                     <span className="font-16">{t`settings.primary_language`}</span>
                                     <select
                                         className="custom-select border ml-auto"
-                                        style={{ height: '34px', fontSize: '14px' }}
+                                        style={{
+                                            height: '34px',
+                                            fontSize: '14px',
+                                        }}
                                         defaultValue={language}
                                         onChange={(e) => changeLang(e.target.value)}
                                     >
-                                        {Object.keys(languages).map((key) => (
-                                            <option value={key}>
-                                                {languages[key as Language]}
-                                            </option>
-                                        ))}
+                                        {Object.keys(languages)
+                                            .map((key) => (
+                                                <option value={key}>
+                                                    {languages[key as Language]}
+                                                </option>
+                                            ))}
                                     </select>
                                 </li>
                                 <li className="d-flex align-items-center py-3">
@@ -52,15 +64,19 @@ export function SettingsPage() {
                                     <span className="font-16">{t`settings.currency`}</span>
                                     <select
                                         className="custom-select border ml-auto"
-                                        style={{ height: '34px', fontSize: '14px' }}
+                                        style={{
+                                            height: '34px',
+                                            fontSize: '14px',
+                                        }}
                                         defaultValue={currency}
                                         onChange={(e) => setCurrency(e.target.value as Currency)}
                                     >
-                                        {Object.keys(currencies).map((key) => (
-                                            <option value={key}>
-                                                {key.toUpperCase()}
-                                            </option>
-                                        ))}
+                                        {Object.keys(currencies)
+                                            .map((key) => (
+                                                <option value={key}>
+                                                    {key.toUpperCase()}
+                                                </option>
+                                            ))}
                                     </select>
                                 </li>
                                 <li className="d-flex align-items-center py-3">
@@ -70,7 +86,10 @@ export function SettingsPage() {
                                     <span className="font-16">{t`settings.contract_version`}</span>
                                     <select
                                         className="custom-select border ml-auto"
-                                        style={{ height: '34px', fontSize: '14px' }}
+                                        style={{
+                                            height: '34px',
+                                            fontSize: '14px',
+                                        }}
                                         defaultValue={walletType}
                                         onChange={(e) => setWalletType(e.target.value as WalletType)}
                                     >
@@ -84,9 +103,43 @@ export function SettingsPage() {
                                 <li className="py-3">
                                     <hr />
                                 </li>
+                                <li className="pb-3">
+                                    <Link
+                                        to="/change-password"
+                                        className="d-flex align-items-center"
+                                    >
+                                        <div className="fi-icon-square mr-3">
+                                            <i className="fa-light fa-key fa-lg" />
+                                        </div>
+                                        <span
+                                            className="font-16"
+                                        >
+                                            {t`settings.change_password`}
+                                        </span>
+                                    </Link>
+                                </li>
+                                <li className="pb-3">
+                                    <Link
+                                        to="/protect"
+                                        className="d-flex align-items-center"
+                                        state={{
+                                            ...state,
+                                            from: location.pathname,
+                                            noLang: null,
+                                        }}
+                                    >
+                                        <div className="fi-icon-square mr-3">
+                                            <i className="fa-light fa-file-pen fa-lg" />
+                                        </div>
+                                        <span className="font-16">{t`settings.backup_seed`}</span>
+                                    </Link>
+                                </li>
+                                <li className="py-3">
+                                    <hr />
+                                </li>
                                 <li className="py-3">
                                     <a
-                                        href="https://t.me/TonHoldWallet"
+                                        href="https://t.me/+ELHXqx_uy2o5MWFi"
                                         target="_blank"
                                         rel="noreferrer"
                                         className="d-flex align-items-center"
@@ -94,7 +147,11 @@ export function SettingsPage() {
                                         <div className="fi-icon-square mr-3">
                                             <i className="fa-light fa-paper-plane fa-lg" />
                                         </div>
-                                        <span className="font-16">{t`settings.contact_support`}</span>
+                                        <span
+                                            className="font-16"
+                                        >
+                                            {t`settings.contact_support`}
+                                        </span>
                                     </a>
                                 </li>
                                 <li className="py-3">

@@ -1,13 +1,14 @@
-import React, { useEffect } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 import QRCode from 'qrcode-svg';
 import { useTranslation } from 'react-i18next';
 import { LocationParams, WalletInfo } from '../../../types';
+import { WalletContext, WalletContextType } from '../../../context';
 
 export function ReceivePage() {
     const location = useLocation();
     const state = location.state as LocationParams;
-    const { walletInfo } = state.data;
+    const { walletInfo } = useContext(WalletContext) as WalletContextType;
 
     const getQR = () => new QRCode({
         content: walletInfo.wallet.address || 'TON FOUNDATION',

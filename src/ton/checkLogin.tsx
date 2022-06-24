@@ -1,16 +1,15 @@
 import { Navigate } from 'react-router-dom';
 
 export function UnloginOnly({ children }: any) {
-    const auth = localStorage.getItem('public_key') != null;
-    if (auth) return <Navigate to="/wallet" />;
+    const pubKey = localStorage.getItem('public_key');
+    const mnemonic = localStorage.getItem('mnemonic');
+    if (pubKey && mnemonic) return <Navigate to="/wallet" />;
     return children;
 }
 
 export function LoginOnly({ children }: any) {
-    const auth = localStorage.getItem('public_key') != null;
-
-    if (!auth) {
-        return <Navigate to="/wallet" />;
-    }
+    const pubKey = localStorage.getItem('public_key');
+    const mnemonic = localStorage.getItem('mnemonic');
+    if (!(pubKey && mnemonic)) return <Navigate to="/" />;
     return children;
 }

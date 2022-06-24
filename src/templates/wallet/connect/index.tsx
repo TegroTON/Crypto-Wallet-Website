@@ -16,6 +16,7 @@ export function ConnectPage() {
         },
         getValues,
         handleSubmit,
+        setValue,
     } = useForm();
 
     const onSubmit = async (data: object) => {
@@ -48,8 +49,7 @@ export function ConnectPage() {
                                         .map((e, i) => (
                                             <div key={i} className="input-group mb-3">
                                                 <div className="input-group-text">
-                                                    {i + 1}
-                                                    .
+                                                    {`${i + 1}.`}
                                                 </div>
                                                 <input
                                                     type="text"
@@ -57,6 +57,12 @@ export function ConnectPage() {
                                                     {...register(`${i + 1}word`, {
                                                         required: true,
                                                         validate: (value) => wordlist.includes(value),
+                                                        onChange: (event) => setValue(
+                                                            event.target.name,
+                                                            event.target.value
+                                                                .toLowerCase()
+                                                                .replaceAll(/[^a-z]/g, ''),
+                                                        ),
                                                     })}
                                                     style={(errors[`${i + 1}word`] && getValues()[`${i + 1}word`]) ? { boxShadow: '0 0 0 .2rem rgba(255,0,0,0.25)' } : {}}
                                                 />
@@ -69,8 +75,7 @@ export function ConnectPage() {
                                         .map((e, i) => (
                                             <div key={i} className="input-group mb-3">
                                                 <div className="input-group-text">
-                                                    {i + 1 + 12}
-                                                    .
+                                                    {`${i + 1 + 12}.`}
                                                 </div>
                                                 <input
                                                     type="text"
@@ -78,6 +83,12 @@ export function ConnectPage() {
                                                     {...register(`${i + 1 + 12}word`, {
                                                         required: true,
                                                         validate: (value) => wordlist.includes(value),
+                                                        onChange: (event) => setValue(
+                                                            event.target.name,
+                                                            event.target.value
+                                                                .toLowerCase()
+                                                                .replaceAll(/[^a-z]/g, ''),
+                                                        ),
                                                     })}
                                                     style={(errors[`${i + 1 + 12}word`] && getValues()[`${i + 1 + 12}word`]) ? { boxShadow: '0 0 0 .2rem rgba(255,0,0,0.25)' } : {}}
                                                 />
