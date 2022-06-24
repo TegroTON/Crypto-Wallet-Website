@@ -16,10 +16,10 @@ export function WalletHeader() {
         updating,
     } = useContext(WalletContext) as WalletContextType;
 
-    function refresh() {
+    async function refresh() {
         // window.location.reload();
-        updateWalletInfo()
-            .then(() => writeState(walletInfo));
+        await updateWalletInfo();
+        writeState(walletInfo);
     }
 
     useEffect(() => {
