@@ -19,8 +19,9 @@ export function WalletHeader() {
     async function refresh() {
         // window.location.reload();
         await updateWalletInfo();
-        writeState(walletInfo);
     }
+
+    writeState(walletInfo);
 
     useEffect(() => {
         refresh();
