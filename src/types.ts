@@ -13,7 +13,8 @@ export interface LocationParams {
         jettonAddress?: string;
         pass?: string;
         jettonInfo?: JettonInfo;
-        words?: string[]
+        words?: string[];
+        selectedJettons?: JettonsData;
     };
 }
 

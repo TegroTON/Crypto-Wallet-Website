@@ -29,7 +29,8 @@
     "react-router-dom": "^6.3.0",
     "rollup-plugin-polyfill-node": "^0.9.0",
     "ton": "https://github.com/pyAndr3w/ton/tarball/temp",
-    "ton-crypto": "^3.2.0"
+    "ton-crypto": "^3.2.0",
+    "yaml": "^2.1.1"
   },
   "devDependencies": {
     "@types/react": "^18.0.14",

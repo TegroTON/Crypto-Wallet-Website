@@ -21,7 +21,7 @@ import { decrypt, encrypt } from './crypto';
 import {
     JettonsData, Send, Transaction, Jetton, JettonMeta, WalletType, walletTypes,
 } from '../types';
-import { client } from './index';
+import { client, DNS } from './index';
 import { JettonMasterContract } from './jettons/contracts/JettonMasterContract';
 import { IPFS_GATEWAY_PREFIX } from './jettons/utils/ipfs';
 import { JettonOperation } from './jettons/enums/JettonOperation';
@@ -402,9 +402,9 @@ const normalizeIMG = (img: string | undefined) => {
     }
 };
 
-export async function addJetton(jettonAddress: string) {
+export async function addCustomJetton(jettonAddress: string, jettonMeta?: JettonMeta) {
     const jettonsData = getJettonsData();
-    const jettonData = await getJettonData(jettonAddress);
+    const jettonData = jettonMeta ?? await getJettonData(jettonAddress);
 
     if (!(jettonAddress in jettonsData)) {
         jettonsData[jettonAddress] = {
@@ -427,7 +427,7 @@ export function removeJetton(jettonAddress: string) {
 }
 
 export async function loadJettons(address: string) {
-    await addJetton('EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y'); // hardcode TGR
+    await addCustomJetton('EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y'); // hardcode TGR
     const jettons = [];
     const jettonsData = getJettonsData();
 
@@ -452,4 +452,19 @@ export async function loadJettons(address: string) {
         });
     }
     return jettons;
+}
+
+export function isDomain(str: string): boolean {
+    return false;
+    // return /\S+.ton\b/.test(str);
+}
+
+export async function getAddressFromDomain(domain: string): Promise<string | undefined> {
+    try {
+        const mbAddr = await DNS.getWalletAddress(domain);
+        console.log(mbAddr instanceof Address ? mbAddr.toFriendly() : undefined);
+        return mbAddr instanceof Address ? mbAddr.toFriendly() : undefined;
+    } catch {
+        return undefined;
+    }
 }

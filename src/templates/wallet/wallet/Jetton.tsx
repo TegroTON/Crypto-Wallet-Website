@@ -17,7 +17,10 @@ export function JettonPage() {
     const updateTransactions = async () => {
         const limit = (jettonInfo.transactions?.length ?? 5) + 5;
         const transactions = await jettonInfo.wallet.getTransactions(limit);
-        setJettonInfo({ ...jettonInfo, transactions });
+        setJettonInfo({
+            ...jettonInfo,
+            transactions,
+        });
     };
 
     const { t } = useTranslation();
@@ -28,9 +31,13 @@ export function JettonPage() {
                 <div className="container">
                     <div className="row">
                         <div className="col-md-8 col-lg-5 text-center mx-auto">
-                            <div className="main-icon">
-                                <i className="fa-duotone fa-gem" />
-                            </div>
+                            <img
+                                src="/img/logo.webp"
+                                className="img-fluid"
+                                width="100"
+                                height="80"
+                                alt="TON Hold"
+                            />
                             <h3 className="wallet-title mb-0 mt-5">{`${jettonInfo?.balance} ${jettonInfo?.jetton.meta.symbol}`}</h3>
                             <div
                                 className="wallet-balance mx-auto d-flex justify-content-between"
@@ -55,7 +62,10 @@ export function JettonPage() {
                                     className="btn btn-secondary w-50"
                                     state={{
                                         from: location.pathname,
-                                        data: { walletInfo, jettonInfo },
+                                        data: {
+                                            walletInfo,
+                                            jettonInfo,
+                                        },
                                     }}
                                 >
                                     {t`wallet.send`}
@@ -71,7 +81,9 @@ export function JettonPage() {
                 <div className="row">
                     <div className="col-md-8 col-lg-5 mx-auto">
                         <div className="wallet-history wh accordion" id="accordionTon">
-                            <div className="wallet-head d-flex align-iteml-center justify-content-between">
+                            <div
+                                className="wallet-head d-flex align-iteml-center justify-content-between"
+                            >
                                 <h2 className="wallet-head__title">{t`wallet.all_transactions`}</h2>
                             </div>
 
@@ -86,7 +98,10 @@ export function JettonPage() {
                                             i={i}
                                             state={{
                                                 from: state.from,
-                                                data: { walletInfo, jettonInfo },
+                                                data: {
+                                                    walletInfo,
+                                                    jettonInfo,
+                                                },
                                             }}
                                         />
                                     );
@@ -101,7 +116,10 @@ export function JettonPage() {
                                             i={i}
                                             state={{
                                                 from: state.from,
-                                                data: { walletInfo, jettonInfo },
+                                                data: {
+                                                    walletInfo,
+                                                    jettonInfo,
+                                                },
                                             }}
                                         />
                                     );

@@ -49,9 +49,13 @@ export function WalletPage() {
                 <div className="container">
                     <div className="row">
                         <div className="col-md-8 col-lg-5 text-center mx-auto">
-                            <div className="main-icon">
-                                <i className="fa-duotone fa-gem" />
-                            </div>
+                            <img
+                                src="/img/logo.webp"
+                                className="img-fluid"
+                                width="100"
+                                height="80"
+                                alt="TON Hold"
+                            />
                             <h3 className="wallet-title mb-0 mt-5">
                                 {walletInfo.wallet.address ? (`${walletInfo.wallet.balance} TON`) : (
                                     <h2 className="main-title" style={{ color: 'white' }}>
@@ -187,7 +191,7 @@ export function WalletPage() {
                             </div>
                             <div className="text-center">
                                 <Link
-                                    to="/add-token"
+                                    to="/add-tokens"
                                     className="btn btn-primary"
                                     state={{
                                         from: location.pathname,

@@ -20,12 +20,13 @@ import { SuccessfulPage } from './templates/wallet/wallet/Successful';
 import { ReceivePage } from './templates/wallet/wallet/Receive';
 import { SettingsPage } from './templates/wallet/wallet/Settings';
 import { PrivacyPage } from './templates/wallet/wallet/Privacy';
-import { AddTokenPage } from './templates/wallet/wallet/AddToken';
 import { JettonPage } from './templates/wallet/wallet/Jetton';
 import { MainPage } from './templates/wallet/main';
 import { DownloadPage } from './templates/wallet/main/Download';
 import './templates/i18n';
 import { ChangePasswordPage } from './templates/wallet/wallet/ChangePassword';
+import { AddTokensPage } from './templates/wallet/wallet/AddTokens';
+import { AddTokensConfirmPage } from './templates/wallet/wallet/AddTokensConfirm';
 
 export default function App() {
     return (
@@ -48,7 +49,8 @@ export default function App() {
                 <Route path="receive-ton" element={<ReceivePage />} />
                 <Route path="settings" element={<LoginOnly><SettingsPage /></LoginOnly>} />
                 <Route path="privacy" element={<PrivacyPage />} />
-                <Route path="add-token" element={<AddTokenPage />} />
+                <Route path="add-tokens" element={<AddTokensPage />} />
+                <Route path="add-tokens-confirm" element={<AddTokensConfirmPage />} />
                 <Route path="download" element={<DownloadPage />} />
                 <Route path="change-password" element={<ChangePasswordPage />} />
 

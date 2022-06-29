@@ -7,8 +7,9 @@ import DropdownItem from 'react-bootstrap/DropdownItem';
 import { useContext, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { LocationParams, JettonInfo } from '../../../types';
-import { checkAddrValid } from '../../../ton/utils';
+import { checkAddrValid, getAddressFromDomain, isDomain } from '../../../ton/utils';
 import { WalletContext, WalletContextType } from '../../../context';
+import { DNS } from '../../../ton';
 
 export function SendPage() {
     const location = useLocation();
@@ -38,14 +39,17 @@ export function SendPage() {
     const symbol = jetton ? jetton.jetton.meta.symbol : 'TON';
     const fee = jetton ? 0.05 : 0.0055; // TODO calculate fee (client.estimateExternalMessageFee)
 
-    const onSubmit = (data: any) => {
+    const onSubmit = async (data: any) => {
+        const recipient = isDomain(data.recipient_address)
+            ? await getAddressFromDomain(data.recipient_address)
+            : data.recipient_address;
         navigator('/protect', {
             state: {
                 from: location.pathname,
                 data: {
                     walletInfo,
                     send: {
-                        address: data.recipient_address,
+                        address: recipient,
                         amount: data.amount,
                         message: data.message,
                         jetton: jetton ?? undefined,
@@ -67,6 +71,11 @@ export function SendPage() {
     const validateAmount = (value: number) => {
         if (jetton) return (value <= jetton.balance) && (walletInfo.wallet.balance >= fee);
         return value < (walletInfo.wallet.balance - fee);
+    };
+
+    const validateAddress = async (value: string) => {
+        if (isDomain(value)) return !!(await getAddressFromDomain(value));
+        return checkAddrValid(value);
     };
 
     return (
@@ -100,7 +109,7 @@ export function SendPage() {
                                         style={errors.recipient_address ? { boxShadow: '0 0 0 .2rem rgba(255,0,0,0.25)' } : {}}
                                         {...register('recipient_address', {
                                             required: true,
-                                            validate: (value) => checkAddrValid(value),
+                                            validate: (value) => validateAddress(value),
                                         })}
                                     />
                                 </div>
