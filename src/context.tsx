@@ -1,20 +1,21 @@
 import React from 'react';
-import { fromNano } from 'ton';
-import { Buffer } from 'buffer';
+import { bytesToHex, bytesToString, hexToBytes } from 'ton3-core/dist/utils/helpers';
+import { Coins } from 'ton3-core';
 import { WalletInfo } from './types';
 import {
     getAddress,
     getBalance,
-    getMnemonic,
     getPubKey,
     getSeqno, getTransactions,
     getWalletType,
     loadJettons,
 } from './ton/utils';
-import { readState } from './templates/utils';
+import { readState, writeState } from './utils';
+import { getMnemonic } from './ton/mnemonic';
 
 export type WalletContextType = {
     walletInfo: WalletInfo;
+    initWalletInfo: () => Promise<void>;
     updateWalletInfo: () => Promise<void>;
     updateJettons: () => Promise<void>;
     updateTransactions: () => Promise<void>;
@@ -28,13 +29,13 @@ interface Props {
 }
 
 export const WalletContextProvider: React.FC<Props> = ({ children }) => {
-    const [walletInfo, setWalletInfo] = React.useState<WalletInfo>(readState() || {
+    const [walletInfo, setWalletInfo] = React.useState<WalletInfo>({
         mnemonic: '',
-        encrypted: '',
-        public_key: Buffer.from('', 'hex'),
-        walletType: 'v3r2',
+        encrypted: false,
+        public_key: '',
+        walletType: 'v3R2',
         wallet: {
-            balance: 0,
+            balance: new Coins(0),
             address: '',
             seqno: 0,
         },
@@ -42,31 +43,37 @@ export const WalletContextProvider: React.FC<Props> = ({ children }) => {
 
     const [updating, setUpdating] = React.useState<boolean>(false);
 
+    const initWalletInfo = async () => {
+        const savedState = await readState();
+        if (savedState) setWalletInfo(savedState);
+    };
+
     const updateWalletInfo = async () => {
         setUpdating(true);
-        const walletType = getWalletType();
-        const address = getAddress(walletType);
-        console.log(walletType, address);
+        const walletType = await getWalletType();
+        const address = await getAddress(walletType);
         const balance = getBalance(address);
         const seqno = getSeqno(address);
         const [mnemonic, encrypted] = await getMnemonic();
         const pub_key = getPubKey();
         const jettons = loadJettons(address);
         const transactions = getTransactions(address, walletInfo.wallet.transactions?.length || 5);
-        setWalletInfo({
+        const newWalletInfo = {
             ...walletInfo,
             mnemonic,
             encrypted,
-            public_key: pub_key,
+            public_key: bytesToHex(await pub_key),
             walletType,
             wallet: {
                 address,
-                balance: parseFloat(fromNano(await balance)),
+                balance: await balance,
                 seqno: await seqno,
                 transactions: await transactions,
                 jettons: await jettons,
             },
-        });
+        };
+        await writeState(newWalletInfo);
+        setWalletInfo(newWalletInfo);
         setUpdating(false);
     };
 
@@ -99,6 +106,7 @@ export const WalletContextProvider: React.FC<Props> = ({ children }) => {
     return (
         <WalletContext.Provider value={{
             walletInfo,
+            initWalletInfo,
             updateWalletInfo,
             updateJettons,
             updateTransactions,

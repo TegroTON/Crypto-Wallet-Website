@@ -1,0 +1,39 @@
+{
+  "compileOnSave": true,
+  "compilerOptions": {
+    "outDir": "dist/js/extension",
+    "useDefineForClassFields": true,
+    "incremental": true,
+    "target": "ESNext",
+    "experimentalDecorators": true,
+    "emitDecoratorMetadata": true,
+    "module": "ESNext",
+    "moduleResolution": "Node",
+    "allowJs": false,
+    "skipLibCheck": true,
+    "esModuleInterop": true,
+    //    "allowSyntheticDefaultImports": true,
+    "baseUrl": "./src/",
+    "lib": [
+      "DOM",
+      "DOM.Iterable",
+      "ESNext",
+      "webworker"
+    ]
+  },
+  "include": [
+    "src/extension"
+    //    "src/utils"
+  ],
+  "exclude": [
+    "vite.config.ts",
+    "node_modules",
+    "src/extension/controller.ts"
+  ],
+  "ts-node": {
+    "compilerOptions": {
+      //        "module": "commonjs",
+      "esModuleInterop": true
+    }
+  }
+}

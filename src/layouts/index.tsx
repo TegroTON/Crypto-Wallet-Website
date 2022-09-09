@@ -1,45 +1,64 @@
 import { Outlet } from 'react-router-dom';
-import { Footer, MainFooter } from '../templates/footers';
+import { useEffect, useState } from 'react';
+import { Footer, MainFooter } from '../pages/footers';
 import {
     DefaultDarkHeader, DefaultHeader, MainHeader, WalletHeader,
-} from '../templates/headers';
+} from '../pages/headers';
+import { getWindowId } from '../utils';
+
+function Wrapper({ children }: any) {
+    const [isWin, setIsWin] = useState<boolean>(false);
+
+    const updateIsWin = async () => setIsWin(!!(await getWindowId()));
+
+    useEffect(() => {
+        updateIsWin()
+            .then();
+    }, []);
+
+    return (
+        <div className="wrapper" style={!isWin ? { minWidth: '450px' } : {}}>
+            {children}
+        </div>
+    );
+}
 
 export function DefaultLayuout() {
     return (
-        <div className="wrapper">
+        <Wrapper>
             <DefaultHeader />
             <Outlet />
-            <Footer />
-        </div>
+            {/* <Footer /> */}
+        </Wrapper>
     );
 }
 
 export function ExoticLayout() {
     return (
-        <div className="wrapper">
+        <Wrapper>
             <DefaultDarkHeader />
             <Outlet />
-            <Footer />
-        </div>
+            {/* <Footer /> */}
+        </Wrapper>
     );
 }
 
 export function WalletLayout() {
     return (
-        <div className="wrapper">
+        <Wrapper>
             <WalletHeader />
             <Outlet />
-            <Footer />
-        </div>
+            {/* <Footer /> */}
+        </Wrapper>
     );
 }
 
 export function MainLayout() {
     return (
-        <div className="wrapper">
+        <Wrapper>
             <MainHeader />
             <Outlet />
             <MainFooter />
-        </div>
+        </Wrapper>
     );
 }

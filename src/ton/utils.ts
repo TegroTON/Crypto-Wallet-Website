@@ -1,196 +1,61 @@
 import {
-    Address,
-    Cell,
-    CommentMessage,
-    toNano,
-    Wallet,
-    WalletV1R2Source,
-    WalletV1R3Source,
-    WalletV2R1Source,
-    WalletV2R2Source,
-    WalletV3R1Source,
-    WalletV3R2Source,
-    WalletV4R2Source,
-    TonTransaction,
-    WalletContractType,
-} from 'ton';
-import { mnemonicNew, mnemonicToWalletKey } from 'ton-crypto';
-import BN from 'bn.js';
-import { Buffer } from 'buffer';
-import { decrypt, encrypt } from './crypto';
+    Address, BOC, Builder, Cell, Coins, Slice,
+} from 'ton3-core';
 import {
-    JettonsData, Send, Transaction, Jetton, JettonMeta, WalletType, walletTypes,
+    base64ToBytes, bytesToHex, bytesToString, hexToBytes, stringToBytes,
+} from 'ton3-core/dist/utils/helpers';
+import { MessageExternalIn } from 'ton3-core/dist/contracts';
+import nacl from 'tweetnacl';
+import { JettonWallet, StandardWalletTransfer, StandardWalletVersion } from '@tegro/ton3-contracts';
+import { JettonOperation, TonTransaction } from '@tegro/ton3-client';
+import { decrypt } from './mnemonic/crypto';
+import {
+    Jetton, JettonInfo, JettonMeta, JettonsData, Send, SendDataType, Transaction, WalletType,
 } from '../types';
-import { client, DNS } from './index';
-import { JettonMasterContract } from './jettons/contracts/JettonMasterContract';
-import { IPFS_GATEWAY_PREFIX } from './jettons/utils/ipfs';
-import { JettonOperation } from './jettons/enums/JettonOperation';
-import { getLanguage, setLanguage } from '../templates/utils';
+import { tonClient } from './index';
+import { getWallet } from './wallet';
+import { getLanguage, setLanguage } from '../utils';
+import { getMnemonic, mnemonicToKeyPair } from './mnemonic';
+import storage from '../utils/storage';
 
-export function openWalletByPublicKey(publicKey: Buffer, type: WalletContractType) {
-    if (type === 'org.ton.wallets.simple') {
-        throw Error('Unsupported wallet');
-    } else if (type === 'org.ton.wallets.simple.r2') {
-        return client.openWalletFromCustomContract(
-            WalletV1R2Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else if (type === 'org.ton.wallets.simple.r3') {
-        return client.openWalletFromCustomContract(
-            WalletV1R3Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else if (type === 'org.ton.wallets.v2') {
-        return client.openWalletFromCustomContract(
-            WalletV2R1Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else if (type === 'org.ton.wallets.v2.r2') {
-        return client.openWalletFromCustomContract(
-            WalletV2R2Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else if (type === 'org.ton.wallets.v3') {
-        return client.openWalletFromCustomContract(
-            WalletV3R1Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else if (type === 'org.ton.wallets.v3.r2') {
-        return client.openWalletFromCustomContract(
-            WalletV3R2Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else if (type === 'org.ton.wallets.v4.r2') {
-        return client.openWalletFromCustomContract(
-            WalletV4R2Source.create({
-                publicKey,
-                workchain: 0,
-            }),
-        );
-    } else {
-        throw Error(`Unknown wallet type: ${type}`);
-    }
-}
-
-export function walletTypeNorm(walletType: WalletType): WalletContractType {
+export function walletTypeNorm(walletType: WalletType): StandardWalletVersion {
     switch (walletType) {
-    case 'v3r2':
+    case 'v3R2':
         return 'org.ton.wallets.v3.r2';
-    case 'v4r2':
+    case 'v4R2':
         return 'org.ton.wallets.v4.r2';
     default:
         throw Error(`Unknown wallet type: ${walletType}`);
     }
 }
 
-async function getBestWalletTypeByPublicKey(publicKey: Buffer): Promise<WalletType> {
-    let maxBalance = new BN(0);
-    let bestContract = walletTypes[0];
-    for (const walletType of walletTypes) {
-        const wallet = openWalletByPublicKey(publicKey, walletTypeNorm(walletType));
-        const balance = await client.getBalance(wallet.address);
-        if (balance.gt(maxBalance)) {
-            maxBalance = balance;
-            bestContract = walletType;
-        }
-    }
-    return bestContract;
-}
-
-export async function getMnemonic(
-    password?: string,
-): Promise<[string, string]> {
-    const old_mnemonic = localStorage.getItem('mnemonic');
-    const old_encrypted = localStorage.getItem('encrypted');
-    if (old_mnemonic) {
-        if (old_encrypted === 'false') {
-            const old_words = old_mnemonic.split(' ');
-            if (old_words.length === 24) return [old_mnemonic, old_encrypted];
-        } else {
-            if (password) return [await decrypt(old_mnemonic, password), 'true'];
-            return [old_mnemonic, 'true'];
-        }
-    }
-    const new_words = await mnemonicNew();
-    const new_mnemonic = new_words.join(' ');
-    localStorage.setItem('mnemonic', new_mnemonic);
-    localStorage.setItem('encrypted', 'false');
-    return [new_mnemonic, 'false'];
-}
-
-export function setMnemonic(words: string[]) {
-    localStorage.setItem('mnemonic', words.join(' '));
-    localStorage.setItem('encrypted', 'false');
-}
-
-export async function reencryptMnemonic(pass: string, new_pass: string) {
-    const [mnemonic] = await getMnemonic(pass);
-    localStorage.setItem('mnemonic', await encrypt(mnemonic, new_pass));
-    localStorage.setItem('encrypted', 'true');
-}
-
-export function setWalletType(walletType = 'v3r2'): WalletType {
-    localStorage.setItem('wallet_type', walletType);
+export async function setWalletType(walletType = 'v3R2'): Promise<WalletType> {
+    await storage.setItem('wallet_type', walletType);
     return walletType;
 }
 
-export function getWalletType(): WalletType {
-    const walletType = localStorage.getItem('wallet_type');
+export async function getWalletType(): Promise<WalletType> {
+    const walletType = await storage.getItem('wallet_type');
     if (walletType) return walletType;
     return setWalletType();
 }
 
-export async function createWallet(password: string): Promise<boolean> {
-    const [mnemonic] = await getMnemonic();
-    const words = mnemonic.split(' ');
-    const key = await mnemonicToWalletKey(words);
-    // const wallet = await client.findWalletFromSecretKey({
-    // workchain: 0, secretKey: key.secretKey })
-    const walletType = await getBestWalletTypeByPublicKey(key.publicKey);
-    setWalletType(walletType);
-    localStorage.setItem('public_key', key.publicKey.toString('hex'));
-    localStorage.setItem('mnemonic', await encrypt(words.join(' '), password));
-    localStorage.setItem('encrypted', 'true');
-    return true;
+export async function getBalance(address: string): Promise<Coins> {
+    if (!address) return new Coins(0);
+    const balance = await tonClient.getBalance(new Address(address));
+    return balance || new Coins(0);
 }
 
-export async function getWallet(password: string): Promise<Wallet> {
-    const [mnemonic] = await getMnemonic(password);
-    const words = mnemonic.split(' ');
-    const key = await mnemonicToWalletKey(words);
-    const type = getWalletType();
-    return client.openWalletFromSecretKey({
-        workchain: 0,
-        secretKey: key.secretKey,
-        type: walletTypeNorm(type),
-    });
-}
-
-export async function getBalance(address: string): Promise<BN> {
-    if (!address) return new BN(0);
-    const balance = await client.getBalance(Address.parse(address));
-    return balance || new BN(0);
+function isBrokenTransaction(tr: TonTransaction): boolean {
+    return (tr.inMessage?.source === null && tr.outMessages.length === 0);
 }
 
 function isJettonTransfer(tr: TonTransaction): boolean {
-    const body = tr.inMessage?.source === null ? tr.outMessages[0].body : tr.inMessage?.body;
+    const body = tr.inMessage?.source === null ? tr.outMessages[0]?.body : tr.inMessage?.body;
     if (body?.type !== 'data') return false;
-    const bodySlice = Cell.fromBoc(body.data)[0].beginParse();
-    if (bodySlice.remaining < 32) return false;
-    const operation = bodySlice.readUint(32)
-        .toNumber();
+    const bodySlice = Slice.parse(BOC.fromStandard(body.data));
+    if (bodySlice.bits.length < 32) return false;
+    const operation = bodySlice.loadUint(32);
     return (operation === JettonOperation.TRANSFER) || (operation === JettonOperation.EXCESSES);
 }
 
@@ -199,74 +64,67 @@ export async function getTransactions(
     limit = 5,
 ): Promise<Transaction[] | undefined> {
     if (!address) return undefined;
-    let trans = await client.getTransactions(Address.parse(address), {
+    let trans = await tonClient.getTransactions(new Address(address), {
         limit: limit < 10 ? 10 : limit,
     });
-    let filtredTrans = trans.filter((tr) => !isJettonTransfer(tr));
+    let filteredTrans = trans.filter((tr) => !isBrokenTransaction(tr));
+    filteredTrans = filteredTrans.filter((tr) => !isJettonTransfer(tr));
     let new_limit = limit;
-    while ((filtredTrans.length < limit) && (trans.length >= new_limit)) {
+    while ((filteredTrans.length < limit) && (trans.length >= new_limit)) {
         const last_lt = trans.at(-1)?.id.lt;
         const last_hash = trans.at(-1)?.id.hash;
         new_limit += 10;
-        const new_trans = await client.getTransactions(Address.parse(address), {
+        const new_trans = await tonClient.getTransactions(new Address(address), {
             limit: 10,
             hash: last_hash,
             lt: last_lt,
         });
         trans = trans.concat(new_trans);
-        filtredTrans = trans.filter((tr) => !isJettonTransfer(tr));
+        filteredTrans = trans.filter((tr) => !isBrokenTransaction(tr));
+        filteredTrans = filteredTrans.filter((tr) => !isJettonTransfer(tr));
     }
-    return filtredTrans.map((tr) => {
+    return filteredTrans.map((tr) => {
         const type = tr.inMessage?.source === null ? 'external' : 'internal';
-        const amount = type === 'external' ? tr.outMessages[0].value : tr.inMessage?.value;
-        const addr = type === 'external'
-            ? tr.outMessages[0].destination
-            : tr.inMessage?.source;
-        const msg = type === 'external'
-            ? tr.outMessages[0].body?.type === 'text'
-                ? tr.outMessages[0].body.text
-                : null
-            : tr.inMessage?.body?.type === 'text'
-                ? tr.inMessage?.body.text
-                : null;
-        const timestamp = tr.time;
-        return {
+        if (type === 'internal') {
+            return {
+                type,
+                amount: tr.inMessage?.value,
+                address: tr.inMessage?.source,
+                msg: tr.inMessage?.body?.type === 'text'
+                    ? tr.inMessage?.body.text
+                    : null,
+                timestamp: tr.time,
+            } as Transaction;
+        }
+        return tr.outMessages.map((msg) => ({
             type,
-            amount,
-            address: addr?.toFriendly(),
-            msg,
-            timestamp,
-        } as Transaction;
+            amount: msg.value,
+            address: msg.destination,
+            msg: msg.body?.type === 'text'
+                ? msg.body.text
+                : null,
+            timestamp: tr.time,
+        } as Transaction));
     })
+        .flat()
         .slice(0, limit);
 }
 
-export function checkAddrValid(address: string) {
-    try {
-        Address.parse(address);
-        return true;
-    } catch {
-        return false;
-    }
+export async function getPubKey(): Promise<Uint8Array> {
+    const pubKey = await storage.getItem('public_key');
+    return hexToBytes(pubKey || '0');
 }
 
-export function getPubKey() {
-    const pubKey = localStorage.getItem('public_key');
-    if (pubKey) return Buffer.from(pubKey, 'hex');
-    return Buffer.from('0', 'hex');
-}
-
-export function getAddress(walletType = 'v3r2') {
-    const pub_key = getPubKey();
-    const wallet = openWalletByPublicKey(
-        pub_key,
-        walletTypeNorm(walletType),
-    );
-    return wallet.address.toFriendly();
+export async function getAddress(walletType = 'v3R2'): Promise<string> {
+    const wallet = await getWallet(walletType);
+    return wallet.address.toString('base64', {
+        bounceable: true,
+        testOnly: false,
+    });
 }
 
 export async function checkPassValid(password: string) {
-    const mnemonic = localStorage.getItem('mnemonic') || '';
+    const mnemonic = await storage.getItem('mnemonic') || '';
     try {
         await decrypt(mnemonic, password);
         return true;
@@ -275,90 +133,138 @@ export async function checkPassValid(password: string) {
     }
 }
 
-async function getSecretKey(password: string) {
-    const mnemonic = await decrypt(
-        localStorage.getItem('mnemonic') || '',
-        password,
-    );
-    const words = mnemonic.split(' ');
-    const key = await mnemonicToWalletKey(words);
-
-    return key.secretKey;
-}
-
-export async function sendTransaction(tr_info: Send, password: string) {
-    const wallet = await getWallet(password);
-    const secretKey = await getSecretKey(password);
-    const seqNo = await wallet.getSeqNo();
-    const recipientAddress = Address.parse(tr_info.address);
-    const bounce = await client.isContractDeployed(recipientAddress);
-
-    for (let i = 0; i < 3; i++) {
-        if (tr_info.jetton) {
-            const to = tr_info.jetton.wallet.address;
-            const forwardPayload = new Cell();
-            new CommentMessage(tr_info.message).writeTo(forwardPayload);
-
-            const payload = tr_info.jetton.wallet.createTransferRequest({
-                queryId: Date.now() / 1000,
-                forwardPayload: tr_info.message.length > 0 ? forwardPayload : null,
-                responseDestination: wallet.address,
-                forwardAmount: 0,
-                amount: toNano(tr_info.amount),
-                destination: recipientAddress,
-            });
-            await wallet.transfer({
-                seqno: seqNo,
-                sendMode: 2,
-                to,
-                secretKey,
-                value: new BN(50000000, 10),
-                bounce,
-                payload,
-            });
-        } else {
-            await wallet.transfer({
-                seqno: seqNo,
-                to: recipientAddress,
-                secretKey,
-                value: toNano(tr_info.amount),
-                bounce,
-                payload: tr_info.message,
-            });
-        }
-    }
-}
-
-export function clearStorage() {
-    const lang = getLanguage();
-    localStorage.clear();
-    setLanguage(lang);
+async function getSecretKey(password: string): Promise<Uint8Array> {
+    const [mnemonic] = await getMnemonic(password);
+    const keyPair = await mnemonicToKeyPair(mnemonic);
+    return keyPair.private;
 }
 
 export async function getSeqno(address: string): Promise<number> {
-    const addr = Address.parse(address);
-    const wallet = client.openWalletFromAddress({ source: addr });
-    return wallet.getSeqNo();
+    const {
+        stack,
+        exitCode,
+    } = await tonClient.callGetMethod(new Address(address), 'seqno');
+    switch (exitCode) {
+    case -13:
+        return 0;
+    case 0:
+        return Number(stack[0]);
+    default:
+        throw Error('getSeqno Error');
+    }
+}
+
+export function sumFee(args: {
+    inFwdFee: Coins,
+    storageFee: Coins,
+    gasFee: Coins,
+    fwdFee: Coins,
+}): Coins {
+    return new Coins(0)
+        .add(args.inFwdFee)
+        .add(args.storageFee)
+        .add(args.gasFee)
+        .add(args.fwdFee);
+}
+
+function bytesToSnake(bytes: Uint8Array, prefix?: Uint8Array): Slice {
+    let builder = new Builder();
+    let remBytes = bytes;
+
+    if (prefix) builder.storeBytes(prefix);
+
+    while (remBytes.length > 0) {
+        const available = Math.floor(builder.remainder / 8);
+        if (remBytes.length <= available) {
+            builder.storeBytes(remBytes);
+            break;
+        }
+        builder.storeBytes(remBytes.slice(-available));
+        remBytes = remBytes.slice(0, -available);
+        builder = new Builder().storeRef(builder.cell());
+    }
+
+    return Slice.parse(builder.cell());
+}
+
+function generatePayload(data: string, dataType: SendDataType): Cell {
+    switch (dataType) {
+    case 'base64':
+        return new Builder()
+            .storeSlice(bytesToSnake(base64ToBytes(data)))
+            .cell();
+    case 'hex':
+        return new Builder()
+            .storeSlice(bytesToSnake(hexToBytes(data)))
+            .cell();
+    case 'boc':
+        return BOC.fromStandard(data);
+    default:
+        return new Builder()
+            .storeSlice(bytesToSnake(stringToBytes(data), new Uint8Array(4)))
+            .cell();
+    }
+}
+
+export async function generateTransferMessage(tr_info: Send): Promise<MessageExternalIn> {
+    const wallet = await getWallet();
+    const seqNo = await getSeqno(wallet.address.toString());
+    const recipientAddress = new Address(tr_info.address, { bounceable: false });
+
+    const forwardPayload = generatePayload(tr_info.data, tr_info.dataType);
+
+    if (tr_info.jetton) {
+        const to = tr_info.jetton.wallet;
+        const { decimals } = tr_info.jetton.jetton.meta;
+
+        const payload = JettonWallet.createTransferRequest({
+            queryId: ~~(Date.now() / 1000),
+            forwardPayload: tr_info.data.length > 0 ? forwardPayload : null,
+            responseDestination: wallet.address,
+            forwardAmount: new Coins(0),
+            amount: new Coins(tr_info.amount, { decimals }),
+            destination: recipientAddress,
+        });
+        const transfer = {
+            destination: to,
+            amount: new Coins(0.099),
+            body: payload,
+            mode: 2,
+        };
+        return wallet.createTransferMessage([transfer], seqNo, 60);
+    }
+
+    const transfer = {
+        destination: recipientAddress,
+        amount: new Coins(tr_info.amount),
+        body: forwardPayload,
+        mode: 3,
+        init: tr_info.stateInit,
+    } as StandardWalletTransfer;
+    return wallet.createTransferMessage([transfer], seqNo, 6000);
+}
+
+export async function sendTransaction(tr_info: Send, password: string) {
+    const secretKey = await getSecretKey(password);
+    const transferMessage = await generateTransferMessage(tr_info);
+    const msgBoc = transferMessage.sign(secretKey);
+
+    for (let i = 0; i < 3; i++) {
+        await tonClient.sendBoc(msgBoc);
+    }
 }
 
 export async function checkSeqnoUpdate(
     seqno: number,
-    walletType = 'v3r2',
+    walletType = 'v3R2',
 ) {
-    return (await getSeqno(getAddress(walletType))) > seqno;
+    return (await getSeqno(await getAddress(walletType))) > seqno;
 }
 
 export async function checkJettonValid(jettonAddress: string) {
-    if (!checkAddrValid(jettonAddress)) return false;
+    if (!Address.isValid(jettonAddress)) return false;
     try {
-        const contract = new JettonMasterContract(
-            client,
-            null as any,
-            Address.parse(jettonAddress),
-        );
-        const jetton_wallet = await contract.getJettonWallet(
-            Address.parse(getAddress()),
-        );
+        await tonClient.Jetton.getWalletAddress(new Address(jettonAddress), new Address(await getAddress()));
         return true;
     } catch {
         return false;
@@ -366,36 +272,27 @@ export async function checkJettonValid(jettonAddress: string) {
 }
 
 export async function getJettonData(jettonAddress: string): Promise<JettonMeta> {
-    const contract = new JettonMasterContract(
-        client,
-        null as any,
-        Address.parse(jettonAddress),
-    );
-    const { content } = await contract.getJettonData();
-    return fetch(content.toString()
-        .replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX))
-        .then((response) => response.json())
-        .then((data) => data as JettonMeta);
+    const { content } = await tonClient.Jetton.getData(new Address(jettonAddress));
+    return content as unknown as JettonMeta;
 }
 
-function getJettonsData(): JettonsData {
-    const data = localStorage.getItem('jettons') || '{}';
+async function getJettonsData(): Promise<JettonsData> {
+    const data = await storage.getItem('jettons') || '{}';
     return JSON.parse(data) as JettonsData;
 }
 
-function setJettonsData(jettonsData: JettonsData) {
-    localStorage.setItem('jettons', JSON.stringify(jettonsData));
+async function setJettonsData(jettonsData: JettonsData) {
+    await storage.setItem('jettons', JSON.stringify(jettonsData));
 }
 
 const normalizeIMG = (img: string | undefined) => {
     if (!img) return '';
     if (img.slice(0, 4) === 'data') return img;
-    const n_img = img.replace(/^ipfs:\/\//, IPFS_GATEWAY_PREFIX);
-    if (n_img.slice(0, 4) === 'http') return n_img;
+    if (img.slice(0, 4) === 'http') return img;
+    if (img.slice(0, 11) === 'img/tokens/') return img;
     try {
-        const mb_svg = Buffer.from(img, 'base64')
-            .toString();
-        if (mb_svg.includes('svg')) return `data:image/svg+xml;base64,${n_img}`;
+        const mb_svg = bytesToString(base64ToBytes(img));
+        if (mb_svg.includes('svg')) return `data:image/svg+xml;base64,${img}`;
         return '';
     } catch {
         return '';
@@ -403,68 +300,72 @@ const normalizeIMG = (img: string | undefined) => {
 };
 
 export async function addCustomJetton(jettonAddress: string, jettonMeta?: JettonMeta) {
-    const jettonsData = getJettonsData();
+    const jettonsData = await getJettonsData();
     const jettonData = jettonMeta ?? await getJettonData(jettonAddress);
 
-    if (!(jettonAddress in jettonsData)) {
-        jettonsData[jettonAddress] = {
-            name: jettonData.name || '',
-            symbol: jettonData.symbol,
-            description: jettonData.description || '',
-            image: normalizeIMG(jettonData.image || jettonData.image_data || ''),
-            decimal: jettonData.decimal || 9,
-        };
-        setJettonsData(jettonsData);
-    }
+    jettonsData[jettonAddress] = {
+        name: jettonData.name || '',
+        symbol: jettonData.symbol,
+        description: jettonData.description || '',
+        image: normalizeIMG(jettonData.image || jettonData.image_data || ''),
+        decimals: jettonData.decimals || 9,
+    };
+    await setJettonsData(jettonsData);
 }
 
-export function removeJetton(jettonAddress: string) {
-    const jettonsData = getJettonsData();
+export async function removeJetton(jettonAddress: string) {
+    const jettonsData = await getJettonsData();
     if (jettonAddress in jettonsData) {
         delete jettonsData[jettonAddress];
-        setJettonsData(jettonsData);
+        await setJettonsData(jettonsData);
     }
 }
 
-export async function loadJettons(address: string) {
+export async function loadJettons(address: string): Promise<JettonInfo[]> {
     await addCustomJetton('EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y'); // hardcode TGR
-    const jettons = [];
-    const jettonsData = getJettonsData();
+    const jettons: JettonInfo[] = [];
+    const jettonsData = await getJettonsData();
 
-    for (const jettonAddress of Object.keys(jettonsData)) {
-        const contract = new JettonMasterContract(
-            client,
-            null as any,
-            Address.parse(jettonAddress),
-        );
-        const jetton_wallet = await contract.getJettonWallet(
-            Address.parse(address),
-        );
-        const { balance } = await jetton_wallet.getData();
-        jettons.push({
-            jetton: {
-                address: jettonAddress,
-                meta: jettonsData[jettonAddress],
-            } as Jetton,
-            wallet: jetton_wallet,
-            balance: balance.toNumber() / 10 ** 9,
-            transactions: await jetton_wallet.getTransactions(),
-        });
-    }
-    return jettons;
+    await Promise.all(Object.keys(jettonsData)
+        .map(async (jettonAddress) => {
+            const jettonWallet = await tonClient.Jetton.getWalletAddress(new Address(jettonAddress), new Address(address));
+            const meta = jettonsData[jettonAddress];
+            const deployed = await tonClient.isContractDeployed(jettonWallet);
+            const balance = deployed ? await tonClient.Jetton.getBalance(jettonWallet) : new Coins(0, { decimals: meta.decimals });
+            jettons.push({
+                jetton: {
+                    address: jettonAddress,
+                    meta,
+                } as Jetton,
+                wallet: jettonWallet,
+                balance,
+                transactions: deployed ? await tonClient.Jetton.getTransactions(jettonWallet) : [],
+            });
+        }));
+    return jettons.sort((a, b) => {
+        if (a.jetton.meta.name > b.jetton.meta.symbol) {
+            return 1;
+        }
+        if (a.jetton.meta.name < b.jetton.meta.symbol) {
+            return -1;
+        }
+        return 0;
+    });
 }
 
 export function isDomain(str: string): boolean {
-    return false;
-    // return /\S+.ton\b/.test(str);
+    return /\S+.ton\b/.test(str);
 }
 
 export async function getAddressFromDomain(domain: string): Promise<string | undefined> {
     try {
-        const mbAddr = await DNS.getWalletAddress(domain);
-        console.log(mbAddr instanceof Address ? mbAddr.toFriendly() : undefined);
-        return mbAddr instanceof Address ? mbAddr.toFriendly() : undefined;
+        const mbAddr = await tonClient.DNS.getWalletAddress(domain);
+        return mbAddr instanceof Address ? mbAddr.toString('base64', { bounceable: false }) : undefined;
     } catch {
         return undefined;
     }
+}
+
+export async function signData(data: string, pass: string): Promise<string> {
+    return bytesToHex(nacl.sign.detached(hexToBytes(data), await getSecretKey(pass)));
 }

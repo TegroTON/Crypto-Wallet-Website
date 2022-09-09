@@ -1,10 +1,9 @@
-import BN from 'bn.js';
-import { Buffer } from 'buffer';
-import { JettonWalletContract } from './ton/jettons/contracts/JettonWalletContract';
-import { JettonTransaction } from './ton/jettons/types/JettonTransaction';
+import { Address, Cell, Coins } from 'ton3-core';
+import { JettonTransaction } from '@tegro/ton3-client';
 
 export interface LocationParams {
     from: string;
+    to?: string;
     noBack?: boolean;
     noLang?: boolean;
     data: {
@@ -15,41 +14,46 @@ export interface LocationParams {
         jettonInfo?: JettonInfo;
         words?: string[];
         selectedJettons?: JettonsData;
+        taskInfo?: any;
     };
 }
 
-export const walletTypes = ['v3r2', 'v4r2'];
+export const walletTypes = ['v3R2', 'v4R2'];
 
 export type WalletType = typeof walletTypes[number];
 
-export interface WalletInfo {
+export type WalletInfo = {
     mnemonic: string;
-    encrypted: string;
-    public_key: Buffer;
+    encrypted: boolean;
+    public_key: string; // hex
     walletType: WalletType;
     wallet: Wallet;
-}
+};
+
+export type SendDataType = ('hex' | 'text' | 'base64' | 'boc');
 
 export interface Send {
+    data: string;
+    dataType: SendDataType;
+    stateInit?: string;
     jetton?: JettonInfo;
     address: string;
     amount: number;
-    message: string;
     status?: string;
 }
 
-interface Wallet {
+type Wallet = {
     address: string;
-    balance: number;
+    balance: Coins;
     seqno?: number;
     transactions?: Transaction[];
     jettons?: JettonInfo[];
-}
+};
 
 export interface JettonInfo {
     jetton: Jetton;
-    wallet: JettonWalletContract;
-    balance: number;
+    wallet: Address;
+    balance: Coins;
     transactions?: JettonTransaction[];
 }
 
@@ -59,12 +63,12 @@ export interface Jetton {
 }
 
 export interface JettonMeta {
-    name?: string;
+    name: string;
     symbol: string;
     description?: string;
     image?: string;
     image_data?: string;
-    decimal?: number;
+    decimals: number;
 }
 
 export interface JettonsData {
@@ -74,8 +78,8 @@ export interface JettonsData {
 
 export interface Transaction {
     type: string;
-    amount: number | BN;
-    address: string;
+    amount: Coins;
+    address: Address;
     msg: string;
     timestamp: number;
 }
@@ -95,3 +99,19 @@ export const languages = {
 };
 
 export type Language = keyof typeof languages;
+
+export const extensionMethods = ['ton_rawSign'];
+
+export type ExtensionMethod = typeof extensionMethods[number];
+
+export type TaskStorage = {
+    id: number,
+    windowId: number,
+    method: ExtensionMethod,
+    params: any,
+    result?: any
+};
+
+export const networks = ['TonMainnet', 'TonTestnet'];
+
+export type NetworkType = typeof networks[number];

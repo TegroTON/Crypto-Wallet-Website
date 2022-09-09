@@ -1,3 +1,8 @@
+EQAvDfWFG0oYX19jwNDNBBL1rKNT9XfaGP9HyTb5nb2Eml6y:
+  name: "Tegro"
+  symbol: "TGR"
+  description: "Cross-platform payment token on the TON blockchain."
+  image: "img/tokens/tgr.png"
 EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw:
   name: "Huebel Bolt"
   symbol: "BOLT"
@@ -6,20 +11,20 @@ EQD0vdSA_NedR9uvbgN9EikRX-suesDxGeFg69XQMavfLqIw:
 EQBlU_tKISgpepeMFT9t3xTDeiVmo25dW_4vUOl6jId_BNIj:
   name: "Kote Coin"
   symbol: "KOTE"
-  description: "34:27:31:09:15:48:11:06:27:27:12:11"
-  image: "https://kotecoin.com/coin.png"
+  description: "kotecoin.com"
+  image: "img/tokens/kote.png"
 EQDAgy1xcNg0aFle548miasSdLCkL1nDeqSLP7Pua4wq-iTo:
   name: "Red Coin"
   symbol: "REDC"
   description: "Red company Coin on the Legendary Blockchain"
-  image: "https://nft.animalsredlist.com/redc/redc.png"
+  image: "img/tokens/redc.png"
 EQBlqsm144Dq6SjbPI4jjZvA1hqTIP3CvHovbIfW_t-SCALE:
   name: "Scaleton"
   symbol: "SCALE"
   description: ""
-  image: "https://ipfs.io/ipfs/QmSMiXsZYMefwrTQ3P6HnDQaCpecS4EWLpgKK5EX1G8iA8"
+  image: "img/tokens/scale.png"
 EQDQoc5M3Bh8eWFephi9bClhevelbZZvWhkqdo80XuY_0qXv:
   name: "Wrapped TON"
   symbol: "WTON"
   description: ""
-  image: "https://st.tonox.org/wton.svg"
+  image: "img/tokens/wton.png"

@@ -1,0 +1,43 @@
+//message$_ info:CommonMsgInfo
+//  init:(Maybe (Either StateInit ^StateInit))
+//  body:(Either x ^x) = Message;
+
+{
+  "Message": {
+    "name": "message",
+    "prefix": "_",
+    "fields": {
+      "info": "CommonMsgInfo",
+      "init": {
+        "Maybe": {
+          "Either": {
+            "Ordinary": "StateInit",
+            "Ref": "StateInit"
+          }
+        }
+      },
+      "body": {
+        "Either": {
+          "ordinary": "x",
+          "ref": "x"
+        }
+      },
+      "example": "uint8",
+      "example2": {
+        "Maybe":
+      }
+    }
+  },
+  "Name_of_schema": {
+    "name": "",
+    "prefix": "",
+    "fields": {
+      "field_name": {
+        "field_type": "field_value"
+      }
+    }
+  },
+  "types of field": [
+    "ordinary", "func", "ref", "maybe", "either"
+  ]
+}

@@ -104,6 +104,7 @@
     "enter_password": "Enter password",
     "to_make_trans": "To make a transaction",
     "to_unlock_seed": "To unlock secret key",
+    "to_continue": "To continue",
     "password": "Password"
   },
   "successful": {
@@ -111,7 +112,19 @@
     "description": "Transaction confirmed",
     "password": "Password changed"
   },
+  "confirm_transaction": {
+    "title": "Transaction Confirmation",
+    "question": "Do you want to confirm this transaction?",
+    "to": "To:",
+    "amount": "Amount:"
+  },
+  "signature": {
+    "title": "Signature Confirmation",
+    "question": "Do you want to sign this data?",
+    "data": "Data:"
+  },
   "button": {
+    "cancel": "Cancel",
     "continue": "Continue",
     "got_it_continue": "Got it, let's continue",
     "create_new": "Create new",
