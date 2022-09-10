@@ -4,12 +4,10 @@
   "name": "TON Hold — Toncoin Wallet",
   "description": "Tonhold friendly crypto wallet is a true, non-custodial TON wallet. Client-side interface helping you interact with TON blockchain.",
   "icons": {
-    "36": "\/android-icon-36x36.png",
-    "48": "\/android-icon-48x48.png",
-    "72": "\/android-icon-72x72.png",
-    "96": "\/android-icon-96x96.png",
-    "144": "\/android-icon-144x144.png",
-    "192": "\/android-icon-192x192.png"
+    "16": "/img/extension/icon-16px.png",
+    "32": "/img/extension/icon-32px.png",
+    "48": "/img/extension/icon-48px.png",
+    "128": "/img/extension/icon-128px.png"
   },
   "permissions": [
     "webRequest",

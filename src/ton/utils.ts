@@ -36,7 +36,17 @@ export async function setWalletType(walletType = 'v3R2'): Promise<WalletType> {
 
 export async function getWalletType(): Promise<WalletType> {
     const walletType = await storage.getItem('wallet_type');
-    if (walletType) return walletType;
+    if (walletType) {
+        // migrate to default protocol (like in ton-wallet)
+        switch (walletType) {
+        case 'v3r2':
+            return setWalletType('v3R2');
+        case 'v4r2':
+            return setWalletType('v4R2');
+        default:
+            return walletType;
+        }
+    }
     return setWalletType();
 }
 

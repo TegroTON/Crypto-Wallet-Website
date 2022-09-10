@@ -2,14 +2,14 @@
  *  `localStorage` polyfill for Chrome Extension environment
  */
 
-export default chrome.storage ? {
+export default (self.chrome && chrome.storage) ? {
     setItem(key: string, value: any) {
-        return chrome.storage.local.set({[key]: value});
+        return chrome.storage.local.set({ [key]: value });
     },
 
     getItem(key: string) {
         return chrome.storage.local.get(key)
-            .then(({[key]: value}) => value);
+            .then(({ [key]: value }) => value);
     },
 
     removeItem(key: string) {

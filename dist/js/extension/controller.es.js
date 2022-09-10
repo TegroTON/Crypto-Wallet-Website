@@ -33542,7 +33542,7 @@ mnemonics.deriveMnemonicsPath = deriveMnemonicsPath;
     return mnemonics_1.getMnemonicsMasterKeyFromSeed;
   } });
 })(dist);
-var storage = chrome.storage ? {
+var storage = self.chrome && chrome.storage ? {
   setItem(key, value) {
     return chrome.storage.local.set({ [key]: value });
   },
@@ -33579,8 +33579,16 @@ async function setWalletType(walletType = "v3R2") {
 }
 async function getWalletType() {
   const walletType = await storage.getItem("wallet_type");
-  if (walletType)
-    return walletType;
+  if (walletType) {
+    switch (walletType) {
+      case "v3r2":
+        return setWalletType("v3R2");
+      case "v4r2":
+        return setWalletType("v4R2");
+      default:
+        return walletType;
+    }
+  }
   return setWalletType();
 }
 async function getBalance(address2) {

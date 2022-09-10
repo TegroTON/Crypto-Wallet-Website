@@ -10,6 +10,7 @@ function Wrapper({ children }: any) {
     const [isWin, setIsWin] = useState<boolean>(false);
 
     const updateIsWin = async () => setIsWin(!!(await getWindowId()));
+    const IS_EXTENSION = !!(self.chrome && chrome.runtime && chrome.runtime.onConnect);
 
     useEffect(() => {
         updateIsWin()
@@ -17,7 +18,7 @@ function Wrapper({ children }: any) {
     }, []);
 
     return (
-        <div className="wrapper" style={!isWin ? { minWidth: '450px' } : {}}>
+        <div className="wrapper" style={(!isWin && IS_EXTENSION) ? { minWidth: '450px' } : {}}>
             {children}
         </div>
     );
