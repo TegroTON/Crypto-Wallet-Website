@@ -21,7 +21,7 @@
     "buffer": "^6.0.3",
     "coingecko-api-v3": "^0.0.13",
     "crypto-js": "^4.1.1",
-    "fp-ts": "^2.12.2",
+    "fp-ts": "^2.16.5",
     "i18next": "^21.8.10",
     "i18next-browser-languagedetector": "^6.1.4",
     "i18next-http-backend": "^1.4.1",
