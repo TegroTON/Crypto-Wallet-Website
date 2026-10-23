@@ -15,7 +15,7 @@ export function PrivacyPage() {
                                 </div>
                                 <p>
                                     This Privacy Policy describes the policies and procedures on
-                                    how J&amp;B Investments Group Inc. (“we,” “our,” or “us”)
+                                    how the operator of the Application (“we,” “our,” or “us”)
                                     collects and processes your information in our AppStore or
                                     Google Play application “Tonhold“ (the “Application”) we
                                     offer.
@@ -308,18 +308,14 @@ export function PrivacyPage() {
                                         information we hold about you is no longer relevant or is
                                         incorrect, you may request that we erase your data.
                                         <br />
-                                        You can submit these requests by email to
-                                        {' '}
-                                        <a href="mailto:contact@Tonhold.com">contact@Tonhold.com</a>
+                                        You can submit these requests via our support
                                         . We may request specific information from you to help us
                                         process your request. Applicable law may require or permit
                                         us to decline your request. If we decline your request, we
                                         will tell you why, subject to legal restrictions. If you
                                         would like to submit a complaint about our use of your
                                         personal information or response to your requests regarding
-                                        your information, you may contact us at
-                                        {' '}
-                                        <a href="mailto:contact@Tonhold.com">contact@Tonhold.com</a>
+                                        your information, you may contact us via our support
                                         {' '}
                                         or submit a complaint to the data protection regulator in
                                         your jurisdiction.
@@ -385,11 +381,8 @@ export function PrivacyPage() {
                             <div className="color-grey mb-5">
                                 If you have questions about your privacy related to the
                                 Application or this Privacy Policy, you may contact us at the
-                                address below. J&amp;B Investments Group Inc.
-                                <br />
-                                E-mail:
-                                {' '}
-                                <a href="mailto:contact@Tonhold.com">contact@Tonhold.com</a>
+                                address below.
+                                
                             </div>
                         </div>
                     </div>
